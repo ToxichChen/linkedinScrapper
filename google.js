@@ -2,31 +2,21 @@ const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
 const { convertArrayToCSV } = require('convert-array-to-csv');
-const converter = require('convert-array-to-csv');
+const credentials = require('./credentials.js')
 
 
-
-// If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = 'token.json';
 let csvFromArrayOfObjects = '';
 let auth = '';
 let fileId = '';
-const googleHeaders = {
-    headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer ya29.a0AfH6SMD86DE2sdgs6T2VT_EDugQtoT4C2dkfI0KDSNkKs-TboJYn3KZUJDe3O3HR_-xAgxkyQx0qgVtswML-ZVAP0UZVcktY0ViM_iOvFvdwWsSOKvBwNhAD484AlEn3Vd_9_7Mr-bIhnXNYr__zzcs2xBy_1wiOrPeuTTXj7Jk",
-    }
-}
 
 async function generateShareUrl(insertId) {
     return 'https://drive.google.com/file/d/' + insertId + '/view?usp=sharing';
 }
 
-module.exports.saveOnDisk = async function(dataObjects) {
+module.exports.saveOnDisk = async function(dataObjects, type) {
     csvFromArrayOfObjects = await convertArrayToCSV(dataObjects);
     return new Promise((resolve, reject) => {
         fs.readFile('credentials.json', (err, content) => {
@@ -35,7 +25,7 @@ module.exports.saveOnDisk = async function(dataObjects) {
             authorize(JSON.parse(content))
                 .then(function (value) {
                     auth = value;
-                    uploadCsv(value).then(function (value) {
+                    uploadCsv(value, type).then(function (value) {
                         filePermission(auth, fileId).then(function (value) {
                             resolve(generateShareUrl(fileId));
                         });
@@ -48,17 +38,18 @@ module.exports.saveOnDisk = async function(dataObjects) {
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
- * @param {Object} credentials The authorization client credentials.
- * @param {function} callback The callback to call with the authorized client.
+ *
+ * @param googleCredentials
+ * @returns {Promise<object>}
  */
-async function authorize(credentials) {
-    const {client_secret, client_id, redirect_uris} = credentials.installed;
+async function authorize(googleCredentials) {
+    const {client_secret, client_id, redirect_uris} = googleCredentials.installed;
     const oAuth2Client = await new google.auth.OAuth2(
         client_id, client_secret, redirect_uris[0]);
 
     // Check if we have previously stored a token.
     return new Promise((resolve, reject) => {
-        fs.readFile(TOKEN_PATH, async (err, token) => {
+        fs.readFile(credentials.TOKEN_PATH, async (err, token) => {
             if (err) return getNewToken(oAuth2Client);
             await oAuth2Client.setCredentials(JSON.parse(token));
             resolve(oAuth2Client);
@@ -75,7 +66,7 @@ async function authorize(credentials) {
 async function getNewToken(oAuth2Client) {
     const authUrl = oAuth2Client.generateAuthUrl({
         access_type: 'offline',
-        scope: SCOPES,
+        scope: credentials.SCOPES,
     });
     console.log('Authorize this app by visiting this url:', authUrl);
     return new Promise(function (resolve, reject) {
@@ -89,9 +80,9 @@ async function getNewToken(oAuth2Client) {
                 if (err) return console.error('Error retrieving access token', err);
                 oAuth2Client.setCredentials(token);
                 // Store the token to disk for later program executions
-                fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+                fs.writeFile(credentials.TOKEN_PATH, JSON.stringify(token), (err) => {
                     if (err) return console.error(err);
-                    console.log('Token stored to', TOKEN_PATH);
+                    console.log('Token stored to', credentials.TOKEN_PATH);
                     resolve(oAuth2Client);
                 });
             });
@@ -99,15 +90,23 @@ async function getNewToken(oAuth2Client) {
     })
 }
 
-async function uploadCsv(auth) {
+/**
+ * Uploads Csv data on Google Drive
+ *
+ * @param auth
+ * @param type
+ * @returns {Promise<*|string>}
+ */
+async function uploadCsv(auth, type) {
     const drive = await google.drive({version: 'v3', auth});
-    var folderId = '18zI4KZYGjzMNoL2sPQjxlKNxYtm4UnQP';
+    let folderId = await type === 'comments' ? credentials.commentsFolderId : credentials.usersFolderId;
     let date = await new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-    var fileMetadata = {
-        'name': date + '-linkedin.csv',
+    let docName = await type === 'comments' ? credentials.commentsCsvName : credentials.usersCsvName;
+    let fileMetadata = {
+        'name': date + docName,
         parents: [folderId]
     };
-    var media = {
+    let media = {
         mimeType: 'text/csv',
         body: csvFromArrayOfObjects
     };
@@ -116,9 +115,18 @@ async function uploadCsv(auth) {
         media: media,
         fields: 'id'
     });
+    console.log(date + docName)
     fileId = file.data.id;
     return fileId;
 }
+
+/**
+ * Changes permissions to access by link
+ *
+ * @param auth
+ * @param fileId
+ * @returns {Promise<unknown>}
+ */
 
 async function filePermission(auth, fileId) {
     const drive = await google.drive({version: 'v3', auth});

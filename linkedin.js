@@ -1,8 +1,8 @@
 const axios = require("axios")
 const mysql = require('mysql');
 const fetch = require('node-fetch');
-const fs = require('fs');
 const google = require('./google.js');
+const credentials = require('./credentials.js')
 
 
 let con = mysql.createConnection({
@@ -12,21 +12,6 @@ let con = mysql.createConnection({
     database: "linkedin"
 });
 
-const searchScrapperId = '5481724136268845';
-const profileScrapperId = '7534201859802850';
-const activitiesScrapperId = '2323214014770879';
-const autoLikerId = '3442324939018265';
-const autoCommenterId = '7247605854052666';
-const rocketSearchApiKey = '8cd41kb002500ac227ce845e7e889ac9d40265';
-const phantomBusterApiKey = 'uFYNGCPshHobRk3kB7tNyKUsuXmrpnO9bom77Cl04fI';
-const sessionCookie = 'AQEDATR7_soDTn4sAAABd8kymjEAAAF37T8eMVYA0Wm9TUeleCs6xcjcqFtdHtsvww2Dtwx-P_LQILsMVHYfNQPdJBd_MJ5UtQKgGuftnxZIgHEZe2jdNqCVwBZQydGp0agZOqqK9QLNP9DNZNXmzWm9';
-// Credentials for phantombuster
-const initOptions = {
-    headers: {
-        "x-phantombuster-key": phantomBusterApiKey,
-        "Content-Type": "application/json",
-    },
-}
 // Calling to rocketreach.co for email by LinkedIn url
 // async function searchForEmail(linkedinUrl) {
 //     let url = 'https://api.rocketreach.co/v2/api/lookupProfile?li_url=' + linkedinUrl;
@@ -48,35 +33,65 @@ const initOptions = {
 //     }
 // }
 
-// Get result of Users Search and run Activities parsing
+/**
+ * Make a delay
+ *
+ * @param time
+ * @returns {Promise<unknown>}
+ */
+
+async function sleep() {
+    let time = Math.floor(Math.random() * (180000 - 30000) + 20000);
+    return new Promise((resolve) => {
+        setTimeout(resolve, time);
+    });
+}
+
+/**
+ * Get result of Users Search and run Activities parsing
+ *
+ * @param containerId
+ * @returns {Promise<void>}
+ */
 async function getUsers(containerId) {
-    let result = await getResults(containerId, searchScrapperId);
+    let result = await getResults(containerId, credentials.searchScrapperId);
     for (const user of result) {
-        await parseActivities(user.url);
+        if (!user.error) {
+            await saveUserToDatabase(user.url, user.firstName, user.lastName)
+            await sleep();
+            await parseActivities(user.url);
+        }
     }
     con.end()
 }
 
-// Get Activities and start Liking and Commenting process
+/**
+ * Get Activities and start Liking and Commenting process
+ *
+ * @param containerId
+ * @returns {Promise<void>}
+ */
 async function likeAndCommentActivities (containerId) {
     console.log(containerId)
-    let result = await getResults(containerId, activitiesScrapperId)
+    let result = await getResults(containerId, credentials.activitiesScrapperId)
     if (!result[0] || !result[0].error) {
         let documentLink = '';
-        await google.saveOnDisk(await prepareAutoCommenter(result)).then(async function(value) {
+        await google.saveOnDisk(await prepareAutoCommenter(result), 'comments').then(async function(value) {
             documentLink = value;
+            await sleep();
             await runAutoLiker(value).then(async function(value) {
                 let status;
                 do {
-                    status = await checkStatus(autoLikerId);
+                    status = await checkStatus(credentials.autoLikerId);
                     console.log(status)
                 } while (status !== 'finished')
                 console.log('Posts are liked successfully')
             }).then(async function () {
+                await sleep();
                 await runAutoCommenter(documentLink).then(async function(value) {
                     let status;
                     do {
-                        status = await checkStatus(autoCommenterId);
+                        status = await checkStatus(credentials.autoCommenterId);
                         console.log(status)
                     } while (status !== 'finished')
                     console.log('Posts are commented successfully')
@@ -88,7 +103,12 @@ async function likeAndCommentActivities (containerId) {
     }
 }
 
-// Prepare and form data for Auto Commenter
+/**
+ * Prepare and form data for Auto Commenter
+ *
+ * @param activities
+ * @returns {Promise<activities and comments array>}
+ */
 async function prepareAutoCommenter (activities ) {
     let comments = await getCommentsArray();
     let formattedData = []
@@ -98,13 +118,17 @@ async function prepareAutoCommenter (activities ) {
             formattedData.push({
                 link: value.postUrl,
                 comment: comments[commentsIndex],
-            })
+            });
         }
         resolve(formattedData);
     })
 }
 
-// Fetch comments from database
+/**
+ * Fetch comments from database
+ *
+ * @returns {Promise<comments>}
+ */
 async function getCommentsArray () {
     let sql = ('SELECT `comment` FROM `comments`');
     return await new Promise((resolve, reject) => {
@@ -118,55 +142,88 @@ async function getCommentsArray () {
     });
 }
 
-// Run Phantombuster's Auto Commenter agent
+/**
+ * Save Linkedin Users urls to database `clients`
+ *
+ * @param url
+ * @param name
+ * @param lastName
+ * @returns {Promise<unknown>}
+ */
+
+async function saveUserToDatabase (url, name, lastName) {
+    let sql = ('INSERT INTO clients (`linkedinUrl`, `name`, `lastName`) VALUES ('+ ' \' ' + url + ' \' ' + ' ,  ' + ' \' ' + name + ' \' ' + ' ,  ' + ' \' ' + lastName + ' \' ' + ' ) ');
+    return await new Promise((resolve, reject) => {
+        con.query(sql, async function (err, result) {
+            resolve(result);
+        });
+    });
+}
+
+/**
+ *  Run Phantombuster's Auto Commenter agent
+ *
+ * @param documentLink
+ * @returns {Promise<void>}
+ */
 async function runAutoCommenter (documentLink) {
-    await   axios
+    await axios
             .post(
                 "https://api.phantombuster.com/api/v2/agents/launch",
                 {
-                    "id": autoCommenterId,
+                    "id": credentials.autoCommenterId,
                     "argument":
                         {
-                            "sessionCookie": sessionCookie,
+                            "sessionCookie": credentials.sessionCookie,
                             "spreadsheetUrl": documentLink,
                             "columnName":"column A",
                             "columnNameMessage":"column B",
                             "randomComments": false
                         }},
-                initOptions,
+                credentials.initOptions,
             )
             .then((res) => console.log(res.data))
             .catch((error) => console.error("Something went wrong :(", error))
 }
 
-// Run Phantombuster's Auto Liker agent
+/**
+ * Run Phantombuster's Auto Liker agent
+ *
+ * @param documentLink
+ * @returns {Promise<void>}
+ */
 async function runAutoLiker (documentLink) {
     axios
         .post(
             "https://api.phantombuster.com/api/v2/agents/launch",
             {
-                "id": autoLikerId,
+                "id": credentials.autoLikerId,
                 "argument":
-                    {"sessionCookie": sessionCookie,
+                    {"sessionCookie": credentials.sessionCookie,
                         "spreadsheetUrl": documentLink,
                         "articleType":"posts"
                     }
                 },
-            initOptions,
+            credentials.initOptions,
         )
         .then((res) => console.log(res.data))
         .catch((error) => console.error("Something went wrong :(", error))
 }
 
-// Start parsing Activities of user
+/**
+ * Start parsing Activities of user
+ *
+ * @param userLinkedinUrl
+ * @returns {Promise<void>}
+ */
 async function parseActivities (userLinkedinUrl) {
     await axios
         .post(
             "https://api.phantombuster.com/api/v2/agents/launch",
             {
-                "id": activitiesScrapperId,
+                "id": credentials.activitiesScrapperId,
                 "argument":{
-                    "sessionCookie": sessionCookie,
+                    "sessionCookie": credentials.sessionCookie,
                     "spreadsheetUrl": userLinkedinUrl,
                     "numberOfLinesPerLaunch":10,
                     "numberMaxOfPosts":20,
@@ -174,21 +231,26 @@ async function parseActivities (userLinkedinUrl) {
                     "onlyScrapePosts":true,
                     "reprocessAll":false
                 }},
-            initOptions,
+            credentials.initOptions,
         )
         .then((res) => likeAndCommentActivities(res.data.containerId))
         .catch((error) => console.error("Something went wrong :(", error))
 }
 
-// Check status of working agent: running/finished
-async function checkStatus(agentId) {
+/**
+ * Check status of working agent: running/finished
+ *
+ * @param agentId
+ * @returns {Promise<string>}
+ */
+async function checkStatus  (agentId) {
     let url = 'https://api.phantombuster.com/api/v2/agents/fetch-output?id=' + agentId;
     let result = '';
     let options = {
         method: 'GET',
         headers: {
             Accept: 'application/json',
-            'X-Phantombuster-Key': phantomBusterApiKey
+            'X-Phantombuster-Key': credentials.phantomBusterApiKey
         }
     };
 
@@ -199,16 +261,22 @@ async function checkStatus(agentId) {
     }
 }
 
-// Get and save results of searches
+/**
+ * Get and save results of searches
+ *
+ * @param containerId
+ * @param scrapperId
+ * @returns {Promise<any>}
+ */
 async function getResults(containerId, scrapperId) {
-    let url = 'https://api.phantombuster.com/api/v1/agent/' + scrapperId + '/output';
+    let url = 'https://api.phantombuster.com/api/v1/agent/' + scrapperId + '/output' ;
     console.log('Container ID: ' + containerId)
     let options = {
         method: 'GET',
-        qs: {containerId: containerId, withoutReusltObject: 'false'},
+        qs: {containerId: containerId, withoutResultObject: 'false'},
         headers: {
             Accept: 'application/json',
-            'X-Phantombuster-Key': phantomBusterApiKey
+            'X-Phantombuster-Key': credentials.phantomBusterApiKey
         }
     };
     let status = '';
@@ -232,7 +300,6 @@ async function getResults(containerId, scrapperId) {
 
 }
 
-
 // ---------Start---------
 // Reading values from console
 let searchArguments = [];
@@ -244,25 +311,25 @@ process.argv.forEach(function (val, index, array) {
     }
 });
 company = searchArguments[0];
-searchArguments.forEach(element => query = query + '  ' + element)
+searchArguments.forEach(element => query = query + ' ' + element)
 
 // Running search process on phantombuster
 axios
     .post(
         "https://api.phantombuster.com/api/v2/agents/launch",
         {
-            "id": searchScrapperId,
+            "id": credentials.searchScrapperId,
             "argument": {
                 "circles": {"first": false, "second": true, "third": true},
                 "category": "People",
                 "numberOfPage": 5,
                 "numberOfLinesPerLaunch": 10,
                 "queryColumn": true,
-                "sessionCookie": sessionCookie,
+                "sessionCookie": credentials.sessionCookie,
                 "search": query
             }
         },
-        initOptions,
+        credentials.initOptions,
     )
     .then((res) => getUsers(res.data.containerId))
     .catch((error) => console.error("Something went wrong :(", error))
