@@ -8,7 +8,7 @@ module.exports.autoLikerId = '4296243235330911';
 module.exports.autoCommenterId = '1076926651247403';
 module.exports.rocketSearchApiKey = '8cd41kb002500ac227ce845e7e889ac9d40265';
 module.exports.phantomBusterApiKey = 'EyFgiCi6NdgRhjv9dBtqncWTVyw3ssyMDeTmwShRToY';
-module.exports.sessionCookie = 'AQEDATUY_a4DstQFAAABeKE3lT8AAAF4xUQZP00AbIV5hTvI_Rg-O6JJDApgP4OBbKCJkaDS4Yt5sMpExUIAKI6KVKtU3Ooz5KX_4DGocA0zF2EM5Li17tB1v7S6GyXYRKcG3Hgoy-IILmCOeVX1uDvQ';
+module.exports.sessionCookie = 'AQEDATUY_a4BbooAAAABeLXcsBoAAAF42ek0Gk4Aio4rTm324eNYQuFeVX5YazhTKQrocVxj082mFl7KPaZUOhAoe0gnGmiG5EjGZGHK0Qrf0Kxa1IcjHdSzMiBoLW_YEGrWxqpiOKOsDyh6poRIrg2p\n';
 module.exports.initOptions = {
     headers: {
         "x-phantombuster-key": this.phantomBusterApiKey,

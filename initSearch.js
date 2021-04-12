@@ -1,10 +1,10 @@
-const LinkedIn = require('./LinkedInScraper');
+const DBManager = require('./DBManager');
 
 // ---------Start---------
 // Reading values from console
 let searchArguments = [];
 let query = '';
-let LinkedInScraper = new LinkedIn();
+let database = new DBManager();
 process.argv.forEach(function (val, index) {
     if (index > 1) {
         searchArguments.push(val);
@@ -13,5 +13,4 @@ process.argv.forEach(function (val, index) {
 company = searchArguments[0];
 searchArguments.forEach(element => query = query + ' ' + element)
 
-LinkedInScraper.saveSearchQueryToDatabase(query.trim());
-LinkedInScraper.closeDatabaseConnection();
+database.saveSearchQueryToDatabase(query.trim());

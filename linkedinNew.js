@@ -123,8 +123,33 @@ axios
                 "numberOfResultsPerLaunch":30,
                 "numberOfResultsPerSearch":60,
                 "removeDuplicateProfiles":true,
-                "csvName":"itechart group"}},
+                "csvName":"itechartGroup"}},
         options,
     )
     .then((res) => console.log(LinkedInScraper.getResults(res.data, credentials.searchScrapperId)))
     .catch((error) => console.error("Something went wrong :(", error))
+// const fetch = require('node-fetch');
+//
+// let url = 'https://api.phantombuster.com/api/v1/agent/' + credentials.searchScrapperId + '/output';
+// console.log('Container ID: 4320286229357853')
+// let options = {
+//     method: 'GET',
+//     qs: {containerId: '4320286229357853', withoutResultObject: 'false'},
+//     headers: {
+//         Accept: 'application/json',
+//         'X-Phantombuster-Key': credentials.phantomBusterApiKey
+//     }
+// };
+//
+// let response =  fetch(url, options)
+// if (response.ok) {
+//     result =  response.json();
+//     console.log(result)
+//     if (result.data.resultObject) {
+//         console.log(JSON.parse(result.data.resultObject))
+//     } else {
+//         console.log(result.data.output);
+//     }
+// } else {
+//     console.log('Request failed')
+// }
