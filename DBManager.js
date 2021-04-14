@@ -37,11 +37,11 @@ class DBManager {
      * @returns {Promise<array>}
      */
 
-    async getUsersArray() {
-        let sql = ('SELECT `linkedinUrl` FROM `clients` WHERE `connectSent` = 0');
+    async getNotLikedUsersArray() {
+        let sql = ('SELECT `linkedinUrl` FROM `clients` WHERE `liked` = 0 AND `commented` = 0 LIMIT 3');
         return await new Promise((resolve, reject) => {
             let urls = [];
-            con.query(sql, async function (err, result) {
+            this.connection.query(sql, async function (err, result) {
                 await result.forEach(function (value) {
                     urls.push(value.linkedinUrl);
                 });
@@ -78,7 +78,7 @@ class DBManager {
      */
 
     async saveUserToDatabase(url, name, lastName) {
-        let sql = ('INSERT INTO clients (`linkedinUrl`, `name`, `lastName`) VALUES (' + ' \' ' + url + ' \' ' + ' ,  ' + ' \' ' + name + ' \' ' + ' ,  ' + ' \' ' + lastName + ' \' ' + ' ) ');
+        let sql = ('INSERT INTO clients (`linkedinUrl`, `name`, `lastName`) VALUES (' + '\'' + url + '\'' + ' ,  ' + '\'' + name + '\'' + ' ,  ' + '\'' + lastName + '\'' + ' ) ');
         let result = await this.checkUserIfExists(url);
         if (!result.length >= 1) {
             return await new Promise((resolve, reject) => {
@@ -96,15 +96,27 @@ class DBManager {
         }
     }
 
+    async updateUsersLikedAndCommented(url) {
+        let sql = ('UPDATE clients SET `liked` = 1, `commented` = 1 WHERE `linkedinUrl` = "' + url + '" AND `liked` = 0');
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                resolve(result);
+            });
+        });
+    }
+
     async getSearchQuery() {
-        let sql = ('SELECT `query` FROM `search_queries` WHERE `is_searched` = 0 LIMIT 1');
+        let sql = ('SELECT * FROM `search_queries` WHERE `is_searched` = 0 LIMIT 1');
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
                     throw err;
                 }
                 if (result.length >= 1) {
-                    resolve(result[0].query)
+                    resolve(result[0])
                 } else {
                     resolve(false);
                 }
@@ -136,6 +148,18 @@ class DBManager {
         });
     }
 
+    async checkSearchFileNameIfExists(fileName) {
+        let sql = ('SELECT * FROM `search_queries` WHERE `file_name` = "' + fileName + '"');
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                resolve(result);
+            });
+        });
+    }
+
     async updateSearchQuery(query) {
         let sql = ('UPDATE search_queries SET `is_searched` = 1 WHERE `query` = "' + query + '" AND `is_searched` = 0');
         return await new Promise((resolve, reject) => {
@@ -148,21 +172,27 @@ class DBManager {
         });
     }
 
-    async saveSearchQueryToDatabase(query) {
-        let sql = ('INSERT INTO search_queries (`query`) VALUES (' + '\'' + query + '\'' + ' ) ');
+    async saveSearchQueryToDatabase(query, fileName) {
+        let sql = ('INSERT INTO search_queries (`query`, `file_name`) VALUES (' + '\'' + query + '\'' + ' ,  ' + '\'' + fileName + '\'' + ' ) ');
         let result = await this.checkSearchQueryIfExists(query);
+        let nameResult = await this.checkSearchFileNameIfExists(fileName);
         if (!result.length >= 1) {
-            return await new Promise((resolve, reject) => {
-                this.connection.query(sql, function (err, result) {
-                    if (err) {
-                        throw err;
-                    } else {
-                        console.log("Successfully saved!")
-                    }
-                    resolve(result);
+            if (!nameResult.length >= 1) {
+                return await new Promise((resolve, reject) => {
+                    this.connection.query(sql, function (err, result) {
+                        if (err) {
+                            throw err;
+                        } else {
+                            console.log("Successfully saved!")
+                        }
+                        resolve(result);
+                    });
+                    this.closeDatabaseConnection();
                 });
-                this.closeDatabaseConnection();
-            });
+            } else {
+                console.log("\n This file name is already taken!! \n")
+                await this.closeDatabaseConnection();
+            }
         } else {
             console.log("\n This result has been saved already!! \n")
             await this.closeDatabaseConnection();
@@ -170,7 +200,7 @@ class DBManager {
     }
 
     async saveReportToDatabase(result) {
-        let sql = ('INSERT INTO jobsLaunches (`script`, `success`, `error_massage`) VALUES (' + ' \' ' + result.script + ' \' ' + ' ,  ' + ' ' + 0 + ' ' + ' ,  ' + ' \' ' + result.error + ' \' ' + ' ) ');
+        let sql = ('INSERT INTO jobsLaunches (`script`, `success`, `error_massage`) VALUES (' + ' \' ' + result.script + ' \' ' + ' ,  ' + ' ' + result.success + ' ' + ' ,  ' + ' \' ' + result.error + ' \' ' + ' ) ');
             return await new Promise((resolve, reject) => {
                 this.connection.query(sql, function (err, result) {
                     if (err) {

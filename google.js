@@ -17,6 +17,7 @@ async function generateShareUrl(insertId) {
 }
 
 module.exports.saveOnDisk = async function(dataObjects, type) {
+    console.log(dataObjects)
     csvFromArrayOfObjects = await convertArrayToCSV(dataObjects);
     return new Promise((resolve, reject) => {
         fs.readFile('credentials.json', (err, content) => {

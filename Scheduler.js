@@ -1,4 +1,3 @@
-const credentials = require('./credentials.js')
 const DBManager = require('./DBManager')
 
 class Scheduler {

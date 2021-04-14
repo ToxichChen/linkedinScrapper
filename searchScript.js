@@ -6,7 +6,7 @@ const SchedulerClass = require('./Scheduler');
 
 
 async function startSearch() {
-    let result = false;
+    let result = true;
     let report = {
         script: 'search',
         success: 0,
@@ -19,7 +19,7 @@ async function startSearch() {
             await Scheduler.makeReport(report);
             break
         }
-        let containerId = await LinkedInScraper.startLinkedInSearchForPeople(query)
+        let containerId = await LinkedInScraper.startLinkedInSearchForPeople(query.query, query.file_name);
         result = await LinkedInScraper.getResults(containerId, credentials.searchScrapperId);
         if (result.error) {
             report.error = result.error;

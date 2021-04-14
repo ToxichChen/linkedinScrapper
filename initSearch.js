@@ -1,16 +1,15 @@
 const DBManager = require('./DBManager');
+const readline = require('readline');
 
-// ---------Start---------
-// Reading values from console
-let searchArguments = [];
-let query = '';
-let database = new DBManager();
-process.argv.forEach(function (val, index) {
-    if (index > 1) {
-        searchArguments.push(val);
-    }
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
 });
-company = searchArguments[0];
-searchArguments.forEach(element => query = query + ' ' + element)
+rl.question('What do you want to find? \n', (query) => {
+    rl.question('How do you want to name your result file? \n', (file) => {
+        let database = new DBManager();
+        database.saveSearchQueryToDatabase(query.trim(), file.trim());
+        rl.close()
+    });
+});
 
-database.saveSearchQueryToDatabase(query.trim());

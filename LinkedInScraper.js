@@ -12,11 +12,11 @@ class LinkedInScraper {
      * Running search process on PhantomBuster
      *
      * @param query
-     * @param resultFileName
+     * @param fileName
      * @returns {Promise<string>}
      */
 
-    async startLinkedInSearchForPeople(query) {
+    async startLinkedInSearchForPeople(query, fileName) {
         return await new Promise((resolve, reject) => {
             axios
                 .post(
@@ -35,7 +35,7 @@ class LinkedInScraper {
                                 "numberOfResultsPerLaunch": 30,
                                 "numberOfResultsPerSearch": 120,
                                 "removeDuplicateProfiles": true,
-                                "csvName": query
+                                "csvName": fileName
                             },
                     },
                     credentials.initOptions,
@@ -131,7 +131,7 @@ class LinkedInScraper {
                             "sessionCookie": credentials.sessionCookie,
                             "spreadsheetUrl": userLinkedInUrl,
                             "numberOfLinesPerLaunch": 10,
-                            "numberMaxOfPosts": 20,
+                            "numberMaxOfPosts": 2,
                             "csvName": "result",
                             "onlyScrapePosts": true,
                             "reprocessAll": false
@@ -190,7 +190,8 @@ class LinkedInScraper {
                                 "spreadsheetUrl": documentLink,
                                 "columnName": "column A",
                                 "columnNameMessage": "column B",
-                                "randomComments": false
+                                "randomComments": false,
+                                "numberOfLinesPerLaunch": 2
                             }
                     },
                     credentials.initOptions,
