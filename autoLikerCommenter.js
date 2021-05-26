@@ -73,4 +73,4 @@ let report = {
 let database = new DBManager();
 let Scheduler = new SchedulerClass();
 let LinkedInScraper = new LinkedIn();
-startScraper()
+startScraper();

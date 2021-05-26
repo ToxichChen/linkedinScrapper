@@ -22,11 +22,11 @@ class LinkedInScraper {
                 .post(
                     "https://api.phantombuster.com/api/v2/agents/launch",
                     {
-                        "id": credentials.searchScrapperId,
+                          "id": credentials.searchScrapperId,
                         "argument":
                             {
-                                "firstCircle": true,
-                                "seoudpdCircle": true,
+                                "firstCircle": false,
+                                "secondCircle": true,
                                 "thirdCircle": true,
                                 "category": "People",
                                 "numberOfLinesPerLaunch": 10,
@@ -71,7 +71,6 @@ class LinkedInScraper {
             status = await this.checkStatus(scrapperId);
             console.log(status)
         } while (status !== 'finished')
-
         let response = await fetch(url, options)
         if (response.ok) {
             result = await response.json();
@@ -217,7 +216,7 @@ class LinkedInScraper {
                         "id": credentials.autoConnectAgentId,
                         "argument":
                             {
-                                "numberOfAddsPerLaunch": 10,
+                                "numberOfAddsPerLaunch": 3,
                                 "onlySecondCircle": false,
                                 "waitDuration": 30,
                                 "skipProfiles": true,
@@ -240,14 +239,13 @@ class LinkedInScraper {
      */
 
     async prepareAutoConnector() {
-        let urls = await this.DBManager.getUsersArray();
+        let urls = await this.DBManager.getNotConnectedUsersArray();
         let formattedData = []
         return await new Promise((resolve, reject) => {
             for (const value of urls) {
                 formattedData.push({
-                    link: value,
+                    link: value.linkedinUrl,
                 })
-                urlsArray.push(value);
             }
             resolve(formattedData);
         })

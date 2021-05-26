@@ -6,7 +6,7 @@ const SchedulerClass = require('./Scheduler');
 
 
 async function startSearch() {
-    let result = true;
+    let result = false;
     let report = {
         script: 'search',
         success: 0,
@@ -24,7 +24,7 @@ async function startSearch() {
         if (result.error) {
             report.error = result.error;
             await Scheduler.makeReport(report);
-            break
+            break;
         }
         if (result !== false) {
             for (const user of result) {

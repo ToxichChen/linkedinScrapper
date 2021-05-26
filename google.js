@@ -16,8 +16,7 @@ async function generateShareUrl(insertId) {
     return 'https://drive.google.com/file/d/' + insertId + '/view?usp=sharing';
 }
 
-module.exports.saveOnDisk = async function(dataObjects, type) {
-    console.log(dataObjects)
+module.exports.saveOnDisk = async function(dataObjects, type){console.log(dataObjects)
     csvFromArrayOfObjects = await convertArrayToCSV(dataObjects);
     return new Promise((resolve, reject) => {
         fs.readFile('credentials.json', (err, content) => {
@@ -106,7 +105,7 @@ async function uploadCsv(auth, type) {
     let fileMetadata = {
         'name': date + docName,
         parents: [folderId]
-    };
+          };
     let media = {
         mimeType: 'text/csv',
         body: csvFromArrayOfObjects

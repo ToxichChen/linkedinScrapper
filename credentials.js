@@ -1,14 +1,14 @@
 // -------- PhantomBuster's credentials
 
-module.exports.autoConnectAgentId = '8525843697444923';
-module.exports.searchScrapperId = '5974841702255973';
-module.exports.profileScrapperId = '7534201859802850';
-module.exports.activitiesScrapperId = '5463089645197190';
-module.exports.autoLikerId = '6672629543491496';
-module.exports.autoCommenterId = '8677201355780542';
+module.exports.autoConnectAgentId = '8583779996110895';
+module.exports.searchScrapperId = '3585510342536137';
+//module.exports.profileScrapperId = '5209556773930741';
+module.exports.activitiesScrapperId = '427147323608543';
+module.exports.autoLikerId = '1545658978628101';
+module.exports.autoCommenterId = '1186181571694785';
 module.exports.rocketSearchApiKey = '8cd41kb002500ac227ce845e7e889ac9d40265';
-module.exports.phantomBusterApiKey = 'N8VZ7EZnLrft2YA8c91ylnOZ1hbRrHhaVGbFAJUMK9E';
-module.exports.sessionCookie = 'AQEDATUY_a4ElpFkAAABeMrexMgAAAF47utIyE4AyzYTorNn5fSelblJ1PwYwbKT0svxtZjrRBKgyVVNBfgS39zPfxZ7aOq2r9xwPMsmFX4njf-BHxzPbg0gD7qiZEj0EySB1fms9ddCtHgXI8zdFt4w';
+module.exports.phantomBusterApiKey = 'D6fIR3xMAirA1IVq8ucp5OhPqXTNWauPOCpNo2HJITk';
+module.exports.sessionCookie = 'AQEDATUY_a4D1Vg-AAABeXrYOoUAAAF5nuS-hVYAQNAhSlp3Ca8iV4fMdGVMNjmhf07zrF4DGPkjRllxLMBUg0qK3QWIVf1m-sWWxFh9PyNAzUyCflond2vLHhXxhNTfdrPjdUPpio85smieXRzJKlQu';
 module.exports.initOptions = {
     headers: {
         "x-phantombuster-key": this.phantomBusterApiKey,
