@@ -16,20 +16,23 @@ async function startSearch() {
         let query = await Database.getSearchQuery();
         if (query === false) {
             report.error = errors.allQueriesSearched;
+            console.log(report.error)
             await Scheduler.makeReport(report);
             break
         }
-        let containerId = await LinkedInScraper.startLinkedInSearchForPeople(query.query, query.file_name);
+        let containerId = await LinkedInScraper.startLinkedInSearchForPeople(query.query, query.file_name, await Database.getAccountSessionByID(query.account_id));
         result = await LinkedInScraper.getResults(containerId, credentials.searchScrapperId);
         if (result.error) {
             report.error = result.error;
             await Scheduler.makeReport(report);
             break;
         }
+
         if (result !== false) {
+            let queryId = await Database.createQueue(query.account_id, query.id);
             for (const user of result) {
                 if (!user.error) {
-                    await Database.saveUserToDatabase(user.url, user.firstName, user.lastName)
+                    await Database.saveUserToDatabase(user.url, user.firstName, user.lastName, query.account_id, queryId)
                 }
             }
             report.success = 1;

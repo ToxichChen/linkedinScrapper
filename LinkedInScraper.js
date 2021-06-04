@@ -13,16 +13,17 @@ class LinkedInScraper {
      *
      * @param query
      * @param fileName
+     * @param sessionToken
      * @returns {Promise<string>}
      */
 
-    async startLinkedInSearchForPeople(query, fileName) {
+    async startLinkedInSearchForPeople(query, fileName, sessionToken) {
         return await new Promise((resolve, reject) => {
             axios
                 .post(
                     "https://api.phantombuster.com/api/v2/agents/launch",
                     {
-                          "id": credentials.searchScrapperId,
+                        "id": credentials.searchScrapperId,
                         "argument":
                             {
                                 "firstCircle": false,
@@ -30,7 +31,7 @@ class LinkedInScraper {
                                 "thirdCircle": true,
                                 "category": "People",
                                 "numberOfLinesPerLaunch": 10,
-                                "sessionCookie": credentials.sessionCookie,
+                                "sessionCookie": sessionToken,
                                 "search": query,
                                 "numberOfResultsPerLaunch": 30,
                                 "numberOfResultsPerSearch": 120,
@@ -77,7 +78,7 @@ class LinkedInScraper {
             console.log(result)
             if (result.data.resultObject) {
                 return await JSON.parse(result.data.resultObject)
-            } else if(result.data.output.split('Error:')[1]) {
+            } else if (result.data.output.split('Error:')[1]) {
                 return {
                     error: result.data.output.split('Error:')[1]
                 }
@@ -116,10 +117,11 @@ class LinkedInScraper {
      * Start parsing Activities of user
      *
      * @param userLinkedInUrl
+     * @param sessionToken
      * @returns {Promise<void>}
      */
 
-    async parseActivities(userLinkedInUrl) {
+    async parseActivities(userLinkedInUrl, sessionToken) {
         return await new Promise((resolve) => {
             axios
                 .post(
@@ -127,7 +129,7 @@ class LinkedInScraper {
                     {
                         "id": credentials.activitiesScrapperId,
                         "argument": {
-                            "sessionCookie": credentials.sessionCookie,
+                            "sessionCookie": sessionToken,
                             "spreadsheetUrl": userLinkedInUrl,
                             "numberOfLinesPerLaunch": 10,
                             "numberMaxOfPosts": 2,
@@ -147,9 +149,10 @@ class LinkedInScraper {
      * Run Phantombuster's Auto Liker agent
      *
      * @param documentLink
+     * @param sessionToken
      * @returns {Promise<void>}
      */
-    async runAutoLiker(documentLink) {
+    async runAutoLiker(documentLink, sessionToken) {
         return await new Promise((resolve, reject) => {
             axios
                 .post(
@@ -158,7 +161,7 @@ class LinkedInScraper {
                         "id": credentials.autoLikerId,
                         "argument":
                             {
-                                "sessionCookie": credentials.sessionCookie,
+                                "sessionCookie": sessionToken,
                                 "spreadsheetUrl": documentLink,
                                 "articleType": "posts"
                             }
@@ -174,9 +177,10 @@ class LinkedInScraper {
      *  Run Phantombuster's Auto Commenter agent
      *
      * @param documentLink
+     * @param sessionToken
      * @returns {Promise<void>}
      */
-    async runAutoCommenter(documentLink) {
+    async runAutoCommenter(documentLink, sessionToken) {
         return await new Promise((resolve, reject) => {
             axios
                 .post(
@@ -185,7 +189,7 @@ class LinkedInScraper {
                         "id": credentials.autoCommenterId,
                         "argument":
                             {
-                                "sessionCookie": credentials.sessionCookie,
+                                "sessionCookie": sessionToken,
                                 "spreadsheetUrl": documentLink,
                                 "columnName": "column A",
                                 "columnNameMessage": "column B",
@@ -204,10 +208,11 @@ class LinkedInScraper {
      * Run Phantombuster's Auto Connect agent
      *
      * @param documentUrl
+     * @param sessionToken
      * @returns {Promise<void>}
      */
 
-    async runAutoConnect(documentUrl) {
+    async runAutoConnect(documentUrl, sessionToken) {
         return await new Promise((resolve, reject) => {
             axios
                 .post(
@@ -220,7 +225,7 @@ class LinkedInScraper {
                                 "onlySecondCircle": false,
                                 "waitDuration": 30,
                                 "skipProfiles": true,
-                                "sessionCookie": credentials.sessionCookie,
+                                "sessionCookie": sessionToken,
                                 "dwellTime": true,
                                 "spreadsheetUrl": documentUrl
                             }
@@ -238,14 +243,17 @@ class LinkedInScraper {
      * @returns {Promise<array>}
      */
 
-    async prepareAutoConnector() {
-        let urls = await this.DBManager.getNotConnectedUsersArray();
-        let formattedData = []
+    async prepareAutoConnector(queueId) {
+        let urls = await this.DBManager.getNotConnectedUsersArray(queueId);
+        let formattedData = [];
         return await new Promise((resolve, reject) => {
+            if (urls === false) {
+                resolve(false);
+            }
             for (const value of urls) {
                 formattedData.push({
                     link: value.linkedinUrl,
-                })
+                });
             }
             resolve(formattedData);
         })
@@ -260,6 +268,7 @@ class LinkedInScraper {
 
     async prepareAutoCommenter(activities) {
         let comments = await this.DBManager.getCommentsArray();
+
         let formattedData = []
         return await new Promise((resolve, reject) => {
             for (const value of activities) {

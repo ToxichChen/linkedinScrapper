@@ -5,11 +5,24 @@ const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
 });
-rl.question('What do you want to find? \n', (query) => {
-    rl.question('How do you want to name your result file? \n', (file) => {
-        let database = new DBManager();
-        database.saveSearchQueryToDatabase(query.trim(), file.trim());
-        rl.close()
-    });
-});
+let query = '';
+let file = '';
 
+async function dialogue () {
+    rl.question('What do you want to find? \n', async (queryResponse) => {
+        query = queryResponse.trim();
+        rl.question('How do you want to name your result file? \n', async (fileResponse) => {
+            file = fileResponse.trim();
+            let Database = new DBManager();
+            let accounts = await Database.getAccounts();
+            accounts.forEach(function (account) {
+                    console.log('ID: ' + account.id + ', Name: ' + account.name + ', Last name: ' + account.last_name + ', Location: ' + account.location + ', Company: ' + account.company + ', Job: ' + account.job)
+                }
+            )
+            rl.question('Please, choose account from the list \n', async (accountId) => {
+                Database.saveSearchQueryToDatabase(query, file, accountId.trim());
+            });
+        });
+    });
+}
+dialogue();

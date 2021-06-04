@@ -1,7 +1,7 @@
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
-const { convertArrayToCSV } = require('convert-array-to-csv');
+const {convertArrayToCSV} = require('convert-array-to-csv');
 const credentials = require('./credentials.js')
 
 
@@ -16,7 +16,8 @@ async function generateShareUrl(insertId) {
     return 'https://drive.google.com/file/d/' + insertId + '/view?usp=sharing';
 }
 
-module.exports.saveOnDisk = async function(dataObjects, type){console.log(dataObjects)
+module.exports.saveOnDisk = async function (dataObjects, type) {
+    console.log(dataObjects)
     csvFromArrayOfObjects = await convertArrayToCSV(dataObjects);
     return new Promise((resolve, reject) => {
         fs.readFile('credentials.json', (err, content) => {
@@ -26,9 +27,13 @@ module.exports.saveOnDisk = async function(dataObjects, type){console.log(dataOb
                 .then(function (value) {
                     auth = value;
                     uploadCsv(value, type).then(function (value) {
-                        filePermission(auth, fileId).then(function (value) {
-                            resolve(generateShareUrl(fileId));
-                        });
+                        if (typeof value.success !== 'undefined' && value.success === false) {
+                            resolve(value);
+                        } else {
+                            filePermission(auth, fileId).then(function (value) {
+                                resolve(generateShareUrl(fileId));
+                            });
+                        }
                     })
                 })
         });
@@ -105,16 +110,24 @@ async function uploadCsv(auth, type) {
     let fileMetadata = {
         'name': date + docName,
         parents: [folderId]
-          };
+    };
     let media = {
         mimeType: 'text/csv',
         body: csvFromArrayOfObjects
     };
-    let file = await drive.files.create({
-        resource: fileMetadata,
-        media: media,
-        fields: 'id'
-    });
+    let file = '';
+    try {
+        file = await drive.files.create({
+            resource: fileMetadata,
+            media: media,
+            fields: 'id'
+        });
+    } catch (e) {
+        return {
+            success: false,
+            errorMessage: e.message
+        };
+    }
     console.log(date + docName)
     fileId = file.data.id;
     return fileId;
