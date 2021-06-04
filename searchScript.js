@@ -41,7 +41,9 @@ async function startSearch() {
             await Database.updateSearchQuery(query);
         }
     } while (result === false);
+    console.log('Finished!');
     await Database.closeDatabaseConnection();
+    process.exit();
 }
 
 let LinkedInScraper = new LinkedIn();

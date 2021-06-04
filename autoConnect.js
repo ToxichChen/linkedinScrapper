@@ -34,6 +34,7 @@ async function autoConnect() {
                     await Scheduler.makeReport(report);
                     await Database.setConnected(links);
                     await Database.closeDatabaseConnection();
+                    process.exit();
                     console.log('Connection requests are sent successfully!');
                 });
             }

@@ -74,10 +74,11 @@ async function startScraper() {
         report.success = 1;
         await Scheduler.makeReport(report);
         await Database.closeDatabaseConnection();
+        process.exit();
     } else {
         await Database.updateLikedQueue(queue.id);
         await Scheduler.makeReport(report);
-        await Database.closeDatabaseConnection();f
+        await Database.closeDatabaseConnection();
     }
 }
 let report = {

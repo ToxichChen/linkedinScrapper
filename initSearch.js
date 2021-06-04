@@ -15,12 +15,13 @@ async function dialogue () {
             file = fileResponse.trim();
             let Database = new DBManager();
             let accounts = await Database.getAccounts();
-            accounts.forEach(function (account) {
+            await accounts.forEach(function (account) {
                     console.log('ID: ' + account.id + ', Name: ' + account.name + ', Last name: ' + account.last_name + ', Location: ' + account.location + ', Company: ' + account.company + ', Job: ' + account.job)
                 }
             )
             rl.question('Please, choose account from the list \n', async (accountId) => {
-                Database.saveSearchQueryToDatabase(query, file, accountId.trim());
+                await Database.saveSearchQueryToDatabase(query, file, accountId.trim());
+                await rl.close();
             });
         });
     });
