@@ -6,6 +6,7 @@ const SchedulerClass = require('./Scheduler');
 
 
 async function startSearch() {
+    console.time("search");
     let result = false;
     let report = {
         script: 'search',
@@ -43,6 +44,7 @@ async function startSearch() {
     } while (result === false);
     console.log('Finished!');
     await Database.closeDatabaseConnection();
+    console.timeEnd("search");
     process.exit();
 }
 

@@ -11,6 +11,7 @@ const SchedulerClass = require('./Scheduler');
  */
 
 async function autoConnect() {
+    console.time("connect");
     let queue = await Database.getNotConnectedQueue();
     let links = await LinkedInScraper.prepareAutoConnector(queue.id);
     if (links !== false) {
@@ -21,6 +22,7 @@ async function autoConnect() {
                 await Scheduler.makeReport(report);
                 await Database.closeDatabaseConnection();
                 console.log('Code finished with error:' + value.errorMessage);
+                process.exit();
             } else {
                 await LinkedInScraper.runAutoConnect(value, await Database.getAccountSessionByID(queue.account_id)).then(async function (value) {
                     let result = await LinkedInScraper.getResults(value, credentials.autoConnectAgentId);
@@ -28,14 +30,15 @@ async function autoConnect() {
                     if (result.error) {
                         report.error = result.error;
                         await Scheduler.makeReport(report);
-                        return false;
+                        process.exit();
                     }
                     report.success = 1;
                     await Scheduler.makeReport(report);
                     await Database.setConnected(links);
                     await Database.closeDatabaseConnection();
-                    process.exit();
+                    console.timeEnd("connect");
                     console.log('Connection requests are sent successfully!');
+                    process.exit();
                 });
             }
         });
@@ -43,6 +46,7 @@ async function autoConnect() {
         report.error = 'All connections for this search were already sent!';
         await Scheduler.makeReport(report);
         await Database.updateConnectedQueue(queue.id);
+        process.exit();
     }
 }
 

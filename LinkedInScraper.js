@@ -2,6 +2,7 @@ const credentials = require('./credentials.js')
 const axios = require("axios")
 const fetch = require('node-fetch');
 const DBManager = require('./DBManager')
+const fs = require('fs');
 
 class LinkedInScraper {
     constructor() {
@@ -71,6 +72,8 @@ class LinkedInScraper {
         do {
             status = await this.checkStatus(scrapperId);
             console.log(status)
+            fs.appendFile('log.txt', '\n' + status, function (err) {
+            });
         } while (status !== 'finished')
         let response = await fetch(url, options)
         if (response.ok) {
