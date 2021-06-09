@@ -5,7 +5,7 @@ const DBManager = require('./DBManager')
 const SchedulerClass = require('./Scheduler');
 
 async function sleep() {
-    let time = Math.floor(Math.random() * (300000 - 50000) + 50000);
+    let time = Math.floor(Math.random() * (180000 - 30000) + 30000);
     return new Promise((resolve) => {
         setTimeout(resolve, time);
     });
