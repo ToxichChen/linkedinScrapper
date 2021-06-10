@@ -254,6 +254,8 @@ class LinkedInScraper {
                 resolve(false);
             }
             for (const value of urls) {
+                fs.appendFile('log.txt', '\n ' + value.linkedinUrl, function (err) {
+                });
                 formattedData.push({
                     link: value.linkedinUrl,
                 });

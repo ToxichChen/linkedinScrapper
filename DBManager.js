@@ -1,5 +1,6 @@
 const credentials = require('./credentials.js')
 const mysql = require('mysql');
+const fs = require('fs')
 
 class DBManager {
 
@@ -342,6 +343,8 @@ class DBManager {
             for (const value of urlsArray) {
                 this.connection.query('UPDATE `clients` SET `connectSent` = 1 WHERE `linkedinUrl` = "' + value.link +'"', async function (err, result) {
                     console.log(value.link + ' - connection sent')
+                    fs.appendFile('log.txt', '\n ' + value.link + ' - connection sent', function (err) {
+                    });
                 });
             }
             resolve(true);

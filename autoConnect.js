@@ -3,6 +3,7 @@ const credentials = require('./credentials.js')
 const LinkedIn = require('./LinkedInScraper')
 const DBManager = require('./DBManager')
 const SchedulerClass = require('./Scheduler');
+const fs = require('fs');
 
 /**
  *  Create a Google Drive document with Linkedin Users urls and start Auto Connect with it
@@ -12,6 +13,8 @@ const SchedulerClass = require('./Scheduler');
 
 async function autoConnect() {
     console.time("connect");
+    fs.appendFile('log.txt', '\n connect', function (err) {
+    });
     let queue = await Database.getNotConnectedQueue();
     let links = await LinkedInScraper.prepareAutoConnector(queue.id);
     if (links !== false) {
@@ -21,6 +24,8 @@ async function autoConnect() {
                 report.error = value.errorMessage;
                 await Scheduler.makeReport(report);
                 await Database.closeDatabaseConnection();
+                fs.appendFile('log.txt', '\n Code finished with error:' + value.errorMessage, function (err) {
+                });
                 console.log('Code finished with error:' + value.errorMessage);
                 process.exit();
             } else {
@@ -37,6 +42,8 @@ async function autoConnect() {
                     await Database.setConnected(links);
                     await Database.closeDatabaseConnection();
                     console.timeEnd("connect");
+                    fs.appendFile('log.txt', '\n Connection requests are sent successfully!', function (err) {
+                    });
                     console.log('Connection requests are sent successfully!');
                     process.exit();
                 });
@@ -51,7 +58,7 @@ async function autoConnect() {
 }
 
 let report = {
-    script: 'autoLikerCommenter',
+    script: 'autoConnect',
     success: 0,
     error: ''
 };
