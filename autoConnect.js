@@ -3,6 +3,7 @@ const credentials = require('./credentials.js')
 const LinkedIn = require('./LinkedInScraper')
 const DBManager = require('./DBManager')
 const SchedulerClass = require('./Scheduler');
+const errors = require('./errorList.js')
 const fs = require('fs');
 
 /**
@@ -16,7 +17,15 @@ async function autoConnect() {
     fs.appendFile('log.txt', '\n connect', function (err) {
     });
     let queue = await Database.getNotConnectedQueue();
+    if (queue === false ) {
+        report.error = errors.allQueuesProcessed;
+        await Scheduler.makeReport(report);
+        await Database.closeDatabaseConnection();
+        process.exit();
+    }
     let links = await LinkedInScraper.prepareAutoConnector(queue.id);
+    console.log(links)
+
     if (links !== false) {
         await google.saveOnDisk(links, 'users').then(async function (value) {
             if (typeof value.success !== 'undefined' && value.success === false) {
@@ -39,7 +48,11 @@ async function autoConnect() {
                     }
                     report.success = 1;
                     await Scheduler.makeReport(report);
-                    await Database.setConnected(links);
+                    for (let link of links) {
+                        await Database.setConnected(link.link);
+                        fs.appendFile('log.txt', '\n ' + link.link + ' - connection sent', function (err) {
+                        });
+                    }
                     await Database.closeDatabaseConnection();
                     console.timeEnd("connect");
                     fs.appendFile('log.txt', '\n Connection requests are sent successfully!', function (err) {
@@ -50,7 +63,7 @@ async function autoConnect() {
             }
         });
     } else {
-        report.error = 'All connections for this search were already sent!';
+        report.error = errors.allConnected;
         await Scheduler.makeReport(report);
         await Database.updateConnectedQueue(queue.id);
         process.exit();

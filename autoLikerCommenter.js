@@ -3,6 +3,7 @@ const credentials = require('./credentials.js')
 const LinkedIn = require('./LinkedInScraper')
 const DBManager = require('./DBManager')
 const SchedulerClass = require('./Scheduler');
+const errors = require('./errorList.js')
 const fs = require('fs');
 
 
@@ -63,7 +64,7 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
                         await Scheduler.makeReport(report);
                         return false;
                     }
-                    fs.appendFile('log.txt', '\n Posts are commented successfully\'', function (err) {
+                    fs.appendFile('log.txt', '\n Posts are commented successfully ', function (err) {
                     });
                     console.log('Posts are commented successfully')
                 })
@@ -75,8 +76,14 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
 async function startScraper() {
     console.time("liker");
     let queue = await Database.getNotLikedQueue();
-    console.log(queue.id)
-    fs.appendFile('log.txt', '\n' + queue.id, function (err) {
+    if (queue === false ) {
+        report.error = errors.allQueuesProcessed;
+        await Scheduler.makeReport(report);
+        await Database.closeDatabaseConnection();
+        process.exit();
+    }
+
+    fs.appendFile('log.txt', '\n Queue for liker = ' + queue.id, function (err) {
     });
     let result = await Database.getNotLikedUsersArray(queue.id)
     if (result !== false) {
@@ -90,7 +97,7 @@ async function startScraper() {
             await sleep();
         }
         console.log('Finished!')
-        fs.appendFile('log.txt', '\n Finished!', function (err) {
+        fs.appendFile('log.txt', '\n AutoLikerCommenter Finished!', function (err) {
         });
         report.success = 1;
         await Scheduler.makeReport(report);
@@ -99,6 +106,7 @@ async function startScraper() {
         process.exit();
     } else {
         await Database.updateLikedQueue(queue.id);
+        report.error = errors.allAccountsLiked;
         await Scheduler.makeReport(report);
         await Database.closeDatabaseConnection();
         process.exit();

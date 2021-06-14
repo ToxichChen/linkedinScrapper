@@ -338,21 +338,19 @@ class DBManager {
      * @returns {Promise<boolean>}
      */
 
-    async setConnected(urlsArray) {
+    async setConnected(link) {
+        let sql = 'UPDATE `clients` SET `connectSent` = 1 WHERE `linkedinUrl` = "' + link +'"';
         return await new Promise((resolve, reject) => {
-            for (const value of urlsArray) {
-                this.connection.query('UPDATE `clients` SET `connectSent` = 1 WHERE `linkedinUrl` = "' + value.link +'"', async function (err, result) {
-                    console.log(value.link + ' - connection sent')
-                    fs.appendFile('log.txt', '\n ' + value.link + ' - connection sent', function (err) {
-                    });
-                });
-            }
-            resolve(true);
+            console.log(sql)
+            this.connection.query(sql, function (err, result) {
+                console.log(link + ' - connection sent')
+                resolve(link);
+            });
         })
     }
 
     async saveReportToDatabase(result) {
-        let sql = ('INSERT INTO jobsLaunches (`script`, `success`, `error_massage`) VALUES (' + ' \' ' + result.script + ' \' ' + ' ,  ' + ' ' + result.success + ' ' + ' ,  ' + ' \' ' + result.error + ' \' ' + ' ) ');
+        let sql = ('INSERT INTO jobsLaunches (`script`, `success`, `error_massage`) VALUES (' + '\'' + result.script + '\'' + ', ' + '' + result.success + '' + ' ,  ' + ' \' ' + result.error + ' \' ' + ' ) ');
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
