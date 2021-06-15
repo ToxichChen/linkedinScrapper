@@ -1,11 +1,11 @@
 // -------- PhantomBuster's credentials
 
-module.exports.autoConnectAgentId = '4089482434250646';
-module.exports.searchScrapperId = '2935457086220465';
+module.exports.autoConnectAgentId = '8836014013233800';
+module.exports.searchScrapperId = '1050823325503576';
 //module.exports.profileScrapperId = '5209556773930741';
-module.exports.activitiesScrapperId = '3747522391192821';
-module.exports.autoLikerId = '5338656193591117';
-module.exports.autoCommenterId = '1331432976655506';
+module.exports.activitiesScrapperId = '4936689033729394';
+module.exports.autoLikerId = '2114065919883080';
+module.exports.autoCommenterId = '6444984696588819';
 module.exports.rocketSearchApiKey = '8cd41kb002500ac227ce845e7e889ac9d40265';
 module.exports.phantomBusterApiKey = 'RNd56SGPhGpAdokkNE47jnaNREfdndDVEIm4JA0pXg4';
 module.exports.sessionCookie = 'AQEDATUY_a4D1Vg-AAABeXrYOoUAAAF5nuS-hVYAQNAhSlp3Ca8iV4fMdGVMNjmhf07zrF4DGPkjRllxLMBUg0qK3QWIVf1m-sWWxFh9PyNAzUyCflond2vLHhXxhNTfdrPjdUPpio85smieXRzJKlQu';
