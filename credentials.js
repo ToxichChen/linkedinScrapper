@@ -7,7 +7,7 @@ module.exports.activitiesScrapperId = '4936689033729394';
 module.exports.autoLikerId = '2114065919883080';
 module.exports.autoCommenterId = '6444984696588819';
 module.exports.rocketSearchApiKey = '8cd41kb002500ac227ce845e7e889ac9d40265';
-module.exports.phantomBusterApiKey = 'RNd56SGPhGpAdokkNE47jnaNREfdndDVEIm4JA0pXg4';
+module.exports.phantomBusterApiKey = 'LZHCZ17JMcQIz98OFzTuwtMwpSVlBhUYaBHR2YwBMMU';
 module.exports.sessionCookie = 'AQEDATUY_a4D1Vg-AAABeXrYOoUAAAF5nuS-hVYAQNAhSlp3Ca8iV4fMdGVMNjmhf07zrF4DGPkjRllxLMBUg0qK3QWIVf1m-sWWxFh9PyNAzUyCflond2vLHhXxhNTfdrPjdUPpio85smieXRzJKlQu';
 module.exports.initOptions = {
     headers: {
