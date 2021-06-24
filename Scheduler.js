@@ -6,7 +6,11 @@ class Scheduler {
     }
 
     async makeReport (result) {
-        await this.DBManager.saveReportToDatabase(result)
+        return await this.DBManager.saveReportToDatabase(result);
+    }
+
+    async updateReport (reportId, result) {
+        await this.DBManager.updateReport(reportId, result)
     }
 
 }

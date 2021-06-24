@@ -19,13 +19,16 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
     fs.appendFile('log.txt', '\n' + containerId, function (err) {
     });
     let result = await LinkedInScraper.getResults(containerId, credentials.activitiesScrapperId);
-
     if (result.error) {
         report.error = result.error;
+        report.in_progress = 0;
         fs.appendFile('log.txt', '\n' + result.error, function (err) {
         });
-        await Scheduler.makeReport(report);
-        await Database.closeDatabaseConnection();
+        await Scheduler.updateReport(reportId, report);
+        //await Database.closeDatabaseConnection();
+        return false;
+    } else if (result.notice) {
+        console.log(result.notice)
         return false;
     }
 
@@ -34,9 +37,10 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
     await google.saveOnDisk(await LinkedInScraper.prepareAutoCommenter(result), 'comments').then(async function (value) {
         if (typeof value.success !== 'undefined' && value.success === false) {
             report.success = 0;
+            report.in_progress = 0;
             report.error = value.errorMessage;
-            await Scheduler.makeReport(report);
-            await Database.closeDatabaseConnection();
+            await Scheduler.updateReport(reportId, report);
+            //await Database.closeDatabaseConnection();
             fs.appendFile('log.txt', '\n' + value.errorMessage, function (err) {
             });
             console.log('Code finished with error:' + value.errorMessage);
@@ -47,7 +51,8 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
                 let likerResult = await LinkedInScraper.getResults(value, credentials.autoLikerId)
                 if (likerResult.error) {
                     report.error = result.error;
-                    await Scheduler.makeReport(report);
+                    report.in_progress = 0;
+                    await Scheduler.updateReport(reportId, report)
                     return false;
                 }
                 fs.appendFile('log.txt', '\n Posts are liked successfully', function (err) {
@@ -59,9 +64,10 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
                     let commenterResult = await LinkedInScraper.getResults(value, credentials.autoCommenterId)
                     if (commenterResult.error) {
                         report.error = result.error;
+                        report.in_progress = 0;
                         fs.appendFile('log.txt', '\n' + result.error, function (err) {
                         });
-                        await Scheduler.makeReport(report);
+                        await Scheduler.updateReport(reportId, report);
                         return false;
                     }
                     fs.appendFile('log.txt', '\n Posts are commented successfully ', function (err) {
@@ -73,18 +79,37 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
     })
 }
 
-async function startScraper() {
+let report = {
+    script: 'autoLikerCommenter',
+    success: 0,
+    error: '',
+    account_id: 0,
+    queue_id: 0,
+    in_progress: 1
+};
+let Database = new DBManager();
+let Scheduler = new SchedulerClass();
+let LinkedInScraper = new LinkedIn();
+let reportId = 0;
+
+//async function startScraper(accountId) {
+module.exports.startLiker = async function (accountId) {
     console.time("liker");
-    let queue = await Database.getNotLikedQueue();
+    let queue = await Database.getNotLikedQueueByAccountId(accountId);
     if (queue === false ) {
         report.error = errors.allQueuesProcessed;
+        report.in_progress = 0;
         await Scheduler.makeReport(report);
-        await Database.closeDatabaseConnection();
-        process.exit();
+        return new Promise((resolve, reject) => {
+            resolve(false);
+        });
+        // await Database.closeDatabaseConnection();
+        // process.exit();
     }
-
-    fs.appendFile('log.txt', '\n Queue for liker = ' + queue.id, function (err) {
-    });
+    report.account_id = queue.account_id;
+    report.queue_id = queue.id;
+    fs.appendFile('log.txt', '\n Queue for liker = ' + queue.id);
+    reportId = await Scheduler.makeReport(report);
     let result = await Database.getNotLikedUsersArray(queue.id)
     if (result !== false) {
         console.log(result)
@@ -100,24 +125,25 @@ async function startScraper() {
         fs.appendFile('log.txt', '\n AutoLikerCommenter Finished!', function (err) {
         });
         report.success = 1;
-        await Scheduler.makeReport(report);
-        await Database.closeDatabaseConnection();
+        report.in_progress = 0;
+        await Scheduler.updateReport(reportId, report);
         console.timeEnd("liker");
-        process.exit();
+        // await Database.closeDatabaseConnection();
+        // process.exit();
+        return new Promise((resolve, reject) => {
+            resolve(true);
+        });
     } else {
         await Database.updateLikedQueue(queue.id);
         report.error = errors.allAccountsLiked;
-        await Scheduler.makeReport(report);
-        await Database.closeDatabaseConnection();
-        process.exit();
+        report.in_progress = 0;
+        await Scheduler.updateReport(reportId, report);
+        return new Promise((resolve, reject) => {
+            resolve(false);
+        });
+        // await Database.closeDatabaseConnection();
+        // process.exit();
     }
 }
-let report = {
-    script: 'autoLikerCommenter',
-    success: 0,
-    error: ''
-};
-let Database = new DBManager();
-let Scheduler = new SchedulerClass();
-let LinkedInScraper = new LinkedIn();
-startScraper();
+
+//startScraper(3);

@@ -45,7 +45,7 @@ class DBManager {
      */
 
     async getNotLikedUsersArray(queueId) {
-        let sql = ('SELECT * FROM `clients` WHERE `liked` = 0 AND `commented` = 0 AND queue_id = ' + queueId + ' LIMIT 3');
+        let sql = (`SELECT * FROM clients WHERE liked = 0 AND commented = 0 AND queue_id = ${queueId} LIMIT 3`);
         console.log(sql)
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
@@ -64,7 +64,7 @@ class DBManager {
     /**
      * Fetch comments from database
      *
-     * @returns {Promise<comments>}+
+     * @returns {Promise<comments>}
      */
     async getCommentsArray() {
         let sql = ('SELECT `comment` FROM `comments`');
@@ -86,7 +86,7 @@ class DBManager {
      */
 
     async getNotConnectedUsersArray(queueId) {
-        let sql = ('SELECT `linkedinUrl` FROM `clients` WHERE `connectSent` = 0 AND `queue_id` = ' + queueId + ' LIMIT 3');
+        let sql = (`SELECT linkedinUrl FROM clients WHERE connectSent = 0 AND queue_id = ${queueId} LIMIT 3`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -113,8 +113,7 @@ class DBManager {
      */
 
     async saveUserToDatabase(url, name, lastName, accountId, queueId) {
-        let sql = ('INSERT INTO clients (`linkedinUrl`, `name`, `lastName`, `account_id`, `queue_id`) VALUES (' + '\'' + url + '\'' + ' ,  ' + '\'' + name + '\'' + ' ,  ' + '\'' + lastName + '\'' + ' ,  ' + '\'' + accountId + '\'' + ' ,  ' + '\'' + queueId + '\'' + ' ) ');
-        // let sql = (`INSERT INTO clients (linkedinUrl, name, lastName) VALUES ('${url}', '${name}', '${lastName}')`);
+        let sql = (`INSERT INTO clients (linkedinUrl, name, lastName, account_id, queue_id) VALUES ("${url}" , "${name}",  "${lastName}" , ${accountId} , ${queueId} ) `);
         let result = await this.checkUserIfExists(url);
         if (!result.length >= 1) {
             return await new Promise((resolve, reject) => {
@@ -133,7 +132,7 @@ class DBManager {
     }
 
     async updateUsersLikedAndCommented(id) {
-        let sql = ('UPDATE clients SET `liked` = 1, `commented` = 1 WHERE `id` = ' + id + ' AND `liked` = 0');
+        let sql = (`UPDATE clients SET liked = 1, commented = 1 WHERE id = ${id} AND liked = 0`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 // if (err) {
@@ -160,8 +159,44 @@ class DBManager {
         });
     }
 
+    async getSearchQueryByAccountId(accountId) {
+        let sql = (`SELECT * FROM search_queries WHERE is_searched = 0 AND account_id = ${accountId} LIMIT 1`);
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
     async getAccounts() {
-        let sql = ('SELECT * FROM `accounts`');
+        let sql = (`SELECT * FROM accounts WHERE active = 1`);
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result)
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getJobsLaunchesByAccount(accountId) {
+        let sql = (`SELECT *
+                    FROM jobsLaunches
+                    WHERE date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'search')
+                       or date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'autoConnect')
+                       or date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'autoLikerCommenter')`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -177,7 +212,7 @@ class DBManager {
     }
 
     async getAccountSessionByID(accountId) {
-        let sql = ('SELECT `session_token` FROM `accounts` WHERE id = ' + accountId);
+        let sql = (`SELECT session_token FROM accounts WHERE id = ${accountId}`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -192,9 +227,8 @@ class DBManager {
         });
     }
 
-    async createQueue (accountId, searchQueryId) {
-        let sql = ('INSERT INTO queues (`account_id`, `search_query_id`) VALUES (' + accountId + ' ,  ' + searchQueryId +' ) ');
-
+    async createQueue(accountId, searchQueryId) {
+        let sql = (`INSERT INTO queues (account_id, search_query_id) VALUES (${accountId} ,  ${searchQueryId} ) `);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
@@ -207,8 +241,8 @@ class DBManager {
         });
     }
 
-    async getNotLikedQueue() {
-        let sql = ('SELECT * FROM `queues` WHERE `is_liked_and_commented` = 0 LIMIT 1');
+    async getNotLikedQueueByAccountId(accountId) {
+        let sql = (`SELECT * FROM queues WHERE is_liked_and_commented = 0 AND account_id = ${accountId} LIMIT 1`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -223,8 +257,24 @@ class DBManager {
         });
     }
 
-    async getNotConnectedQueue() {
-        let sql = ('SELECT * FROM `queues` WHERE `is_connected` = 0 LIMIT 1');
+    // async getNotLikedQueue() {
+    //     let sql = ('SELECT * FROM `queues` WHERE `is_liked_and_commented` = 0 LIMIT 1');
+    //     return await new Promise((resolve, reject) => {
+    //         this.connection.query(sql, async function (err, result) {
+    //             if (err) {
+    //                 throw err;
+    //             }
+    //             if (result.length >= 1) {
+    //                 resolve(result[0])
+    //             } else {
+    //                 resolve(false);
+    //             }
+    //         });
+    //     });
+    // }
+
+    async getNotConnectedQueueByAccountId(accountId) {
+        let sql = (`SELECT * FROM queues WHERE is_connected = 0 AND account_id = ${accountId} LIMIT 1`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -238,9 +288,25 @@ class DBManager {
             });
         });
     }
+
+    // async getNotConnectedQueue() {
+    //     let sql = ('SELECT * FROM `queues` WHERE `is_connected` = 0 LIMIT 1');
+    //     return await new Promise((resolve, reject) => {
+    //         this.connection.query(sql, async function (err, result) {
+    //             if (err) {
+    //                 throw err;
+    //             }
+    //             if (result.length >= 1) {
+    //                 resolve(result[0])
+    //             } else {
+    //                 resolve(false);
+    //             }
+    //         });
+    //     });
+    // }
 
     async updateLikedQueue(id) {
-        let sql = ('UPDATE queues SET `is_liked_and_commented` = 1 WHERE `id` = ' + id);
+        let sql = (`UPDATE queues SET is_liked_and_commented = 1 WHERE id = ${id}`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 resolve(result);
@@ -249,7 +315,7 @@ class DBManager {
     }
 
     async updateConnectedQueue(id) {
-        let sql = ('UPDATE queues SET `is_connected` = 1 WHERE `id` = ' + id);
+        let sql = (`UPDATE queues SET is_connected = 1 WHERE id = ${id}`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 resolve(result);
@@ -258,7 +324,7 @@ class DBManager {
     }
 
     async checkUserIfExists(linkedinUrl) {
-        let sql = ('SELECT * FROM `clients` WHERE `linkedinUrl` = "' + linkedinUrl + '"');
+        let sql = (`SELECT * FROM clients WHERE linkedinUrl = "${linkedinUrl}"`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -270,7 +336,7 @@ class DBManager {
     }
 
     async checkSearchQueryIfExists(query) {
-        let sql = ('SELECT * FROM `search_queries` WHERE `query` = "' + query + '" AND `is_searched` = 0');
+        let sql = (`SELECT * FROM search_queries WHERE query = "${query}" AND is_searched = 0`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -282,7 +348,7 @@ class DBManager {
     }
 
     async checkSearchFileNameIfExists(fileName) {
-        let sql = ('SELECT * FROM `search_queries` WHERE `file_name` = "' + fileName + '"');
+        let sql = (`SELECT * FROM search_queries WHERE file_name = "${fileName}"`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -294,7 +360,7 @@ class DBManager {
     }
 
     async updateSearchQuery(query) {
-        let sql = ('UPDATE search_queries SET `is_searched` = 1 WHERE `query` = "' + query.query + '" AND `is_searched` = 0');
+        let sql = (`UPDATE search_queries SET is_searched = 1 WHERE query = "${query.query}" AND is_searched = 0`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -306,7 +372,8 @@ class DBManager {
     }
 
     async saveSearchQueryToDatabase(query, fileName, accountId) {
-        let sql = ('INSERT INTO search_queries (`query`, `file_name`, `account_id`) VALUES (' + '\'' + query + '\'' + ' ,  ' + '\'' + fileName + '\'' + ' ,  ' + '\'' + accountId + '\'' + ' ) ');
+        let sql = (`INSERT INTO search_queries (query, file_name, account_id) VALUES ( "${query}", "${fileName}", ${accountId}  ) `);
+        //let sql = ('INSERT INTO search_queries (`query`, `file_name`, `account_id`) VALUES (' + '\'' + query + '\'' + ' ,  ' + '\'' + fileName + '\'' + ' ,  ' + '\'' + accountId + '\'' + ' ) ');
         let result = await this.checkSearchQueryIfExists(query);
         let nameResult = await this.checkSearchFileNameIfExists(fileName);
         if (!result.length >= 1) {
@@ -339,7 +406,7 @@ class DBManager {
      */
 
     async setConnected(link) {
-        let sql = 'UPDATE `clients` SET `connectSent` = 1 WHERE `linkedinUrl` = "' + link +'"';
+        let sql = `UPDATE clients SET connectSent = 1 WHERE linkedinUrl = "${link}"`;
         return await new Promise((resolve, reject) => {
             console.log(sql)
             this.connection.query(sql, function (err, result) {
@@ -350,13 +417,27 @@ class DBManager {
     }
 
     async saveReportToDatabase(result) {
-        let sql = ('INSERT INTO jobsLaunches (`script`, `success`, `error_massage`) VALUES (' + '\'' + result.script + '\'' + ', ' + '' + result.success + '' + ' ,  ' + ' \' ' + result.error + ' \' ' + ' ) ');
+        let sql = (`INSERT INTO jobsLaunches (script, success, error_massage, account_id, queue_id, in_progress) VALUES ("${result.script}", ${result.success} , "${result.error}" , ${result.account_id}, ${result.queue_id}, ${result.in_progress}) `);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
                     throw err;
                 } else {
                     console.log("Report saved!")
+                    resolve(result.insertId);
+                }
+            });
+        });
+    }
+
+    async updateReport(reportId, result) {
+        let sql = (`UPDATE jobsLaunches SET in_progress = ${result.in_progress}, error_massage = "${result.error}", success = ${result.success} WHERE id = ${reportId}`);
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Report updated!")
                 }
                 resolve(result);
             });

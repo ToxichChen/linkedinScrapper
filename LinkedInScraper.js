@@ -79,12 +79,20 @@ class LinkedInScraper {
         if (response.ok) {
             result = await response.json();
             console.log(result)
-            if (result.data.resultObject) {
-                return await JSON.parse(result.data.resultObject)
+            if (result.data.resultObject && result.data.resultObject.includes("No activity")) {
+                return {
+                    notice: "No activity"
+                }
             } else if (result.data.output.split('Error:')[1]) {
                 return {
                     error: result.data.output.split('Error:')[1]
                 }
+            } else if (result.data.output.includes("Can't connect to LinkedIn with this session cookie.")) {
+                return {
+                    error: "Can't connect to LinkedIn with this session cookie."
+                }
+            } else if (result.data.resultObject) {
+                return await JSON.parse(result.data.resultObject)
             } else {
                 return false;
             }

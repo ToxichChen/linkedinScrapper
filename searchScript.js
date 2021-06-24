@@ -5,51 +5,63 @@ const DBManager = require('./DBManager')
 const SchedulerClass = require('./Scheduler');
 
 
-async function startSearch() {
+let LinkedInScraper = new LinkedIn();
+let Database = new DBManager();
+let Scheduler = new SchedulerClass();
+//async function startSearch() {
+module.exports.startSearch = async function (accountId) {
     console.time("search");
     let result = false;
     let report = {
         script: 'search',
         success: 0,
-        error: ''
+        error: '',
+        account_id: accountId,
+        queue_id: 0,
+        in_progress: 1
     };
+    let reportId = await Scheduler.makeReport(report);
     do {
-        let query = await Database.getSearchQuery();
+        let query = await Database.getSearchQueryByAccountId(accountId);
         if (query === false) {
             report.error = errors.allQueriesSearched;
             console.log(report.error)
-            await Scheduler.makeReport(report);
+            report.in_progress = 0;
+            await Scheduler.updateReport(reportId, report);
             break
         }
+        report.account_id = query.account_id;
         let containerId = await LinkedInScraper.startLinkedInSearchForPeople(query.query, query.file_name, await Database.getAccountSessionByID(query.account_id));
         result = await LinkedInScraper.getResults(containerId, credentials.searchScrapperId);
         if (result.error) {
             report.error = result.error;
-            await Scheduler.makeReport(report);
+            report.in_progress = 0;
+            await Scheduler.updateReport(reportId, report);
             break;
         }
 
         if (result !== false) {
-            let queryId = await Database.createQueue(query.account_id, query.id);
+            let queueId = await Database.createQueue(query.account_id, query.id);
             for (const user of result) {
                 if (!user.error) {
-                    await Database.saveUserToDatabase(user.url, user.firstName, user.lastName, query.account_id, queryId)
+                    await Database.saveUserToDatabase(user.url, user.firstName, user.lastName, query.account_id, queueId)
                 }
             }
             report.success = 1;
-            await Scheduler.makeReport(report)
+            report.queue_id = queueId;
+            report.in_progress = 0;
+            await Scheduler.updateReport(reportId, report);
         } else {
             await Database.updateSearchQuery(query);
         }
     } while (result === false);
     console.log('Finished!');
-    await Database.closeDatabaseConnection();
+    //await Database.closeDatabaseConnection();
     console.timeEnd("search");
-    process.exit();
+    return new Promise((resolve, reject) => {
+        resolve(true);
+    });
+    //process.exit();
 }
 
-let LinkedInScraper = new LinkedIn();
-let Database = new DBManager();
-let Scheduler = new SchedulerClass();
-
-startSearch()
+//startSearch()
