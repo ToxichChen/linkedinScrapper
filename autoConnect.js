@@ -30,6 +30,7 @@ module.exports.startAutoConnect = async function (accountId) {
     console.time("connect");
     fs.appendFile('log.txt', '\n connect', function (err) {
     });
+    report.account_id = accountId;
     let queue = await Database.getNotConnectedQueueByAccountId(accountId);
     if (queue === false) {
         report.error = errors.allQueuesProcessed;

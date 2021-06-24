@@ -95,6 +95,7 @@ let reportId = 0;
 //async function startScraper(accountId) {
 module.exports.startLiker = async function (accountId) {
     console.time("liker");
+    report.account_id = accountId;
     let queue = await Database.getNotLikedQueueByAccountId(accountId);
     if (queue === false ) {
         report.error = errors.allQueuesProcessed;
@@ -108,7 +109,8 @@ module.exports.startLiker = async function (accountId) {
     }
     report.account_id = queue.account_id;
     report.queue_id = queue.id;
-    fs.appendFile('log.txt', '\n Queue for liker = ' + queue.id);
+    fs.appendFile('log.txt', '\n Queue for liker = ' + queue.id, function (err) {
+    });
     reportId = await Scheduler.makeReport(report);
     let result = await Database.getNotLikedUsersArray(queue.id)
     if (result !== false) {

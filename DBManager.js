@@ -192,11 +192,9 @@ class DBManager {
     }
 
     async getJobsLaunchesByAccount(accountId) {
-        let sql = (`SELECT *
-                    FROM jobsLaunches
-                    WHERE date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'search')
-                       or date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'autoConnect')
-                       or date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'autoLikerCommenter')`);
+        let sql = (`SELECT * FROM jobsLaunches WHERE account_id = ${accountId} AND date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'search')
+                                                  or account_id = ${accountId} AND date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'autoConnect')
+                                                  or account_id = ${accountId} AND date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'autoLikerCommenter') LIMIT 3`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
