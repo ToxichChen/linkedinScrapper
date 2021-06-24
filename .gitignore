@@ -2,3 +2,6 @@
 /vendor/
 /pdfs
 /uploads
+token.json
+credentials.js
+log.txt
