@@ -18,9 +18,9 @@ module.exports.initOptions = {
 
 // --------- Database Credentials ------------
 
-module.exports.dbHost = 'localhost';
-module.exports.dbUser = 'dmitry';
-module.exports.dbPassword = 'aqswdefr1';
+module.exports.dbHost = 'mysql';
+module.exports.dbUser = 'root';
+module.exports.dbPassword = 'root';
 module.exports.database = 'linkedin';
 
 // --------- Google API credentials ----------
