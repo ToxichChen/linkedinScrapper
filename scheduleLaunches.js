@@ -5,11 +5,10 @@ const autoConnectScript = require('./autoConnect.js')
 
 async function startScrapper() {
     let accountsArray = await Database.getAccounts();
-    console.log(accountsArray)
     for (const account of accountsArray) {
         console.log(account)
         let lastLaunches = await Database.getJobsLaunchesByAccount(account.id);
-        if (lastLaunches !== false) {
+        if (lastLaunches !== false || lastLaunches.length !== 3) {
             console.log(account.id)
             for (const launch of lastLaunches) {
                 if (launch.script === 'search') {
