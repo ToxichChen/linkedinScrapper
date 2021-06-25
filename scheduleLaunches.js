@@ -8,7 +8,8 @@ async function startScrapper() {
     for (const account of accountsArray) {
         console.log(account)
         let lastLaunches = await Database.getJobsLaunchesByAccount(account.id);
-        if (lastLaunches !== false || lastLaunches.length !== 3) {
+        console.log(lastLaunches)
+        if (lastLaunches !== false && lastLaunches.length === 3) {
             console.log(account.id)
             for (const launch of lastLaunches) {
                 if (launch.script === 'search') {
