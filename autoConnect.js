@@ -31,20 +31,19 @@ module.exports.startAutoConnect = async function (accountId) {
     fs.appendFile('log.txt', '\n connect', function (err) {
     });
     report.account_id = accountId;
+    reportId = await Database.getIdOfLastWorkingReport(accountId, report.script);
     let queue = await Database.getNotConnectedQueueByAccountId(accountId);
     if (queue === false) {
         report.error = errors.allQueuesProcessed;
         report.in_progress = 0;
-        await Scheduler.makeReport(report);
+        await Scheduler.updateReport(reportId, report);
         return new Promise((resolve, reject) => {
             resolve(false);
         });
         // await Database.closeDatabaseConnection();
         // process.exit();
     }
-    report.account_id = queue.account_id;
     report.queue_id = queue.id;
-    reportId = await Scheduler.makeReport(report);
     let links = await LinkedInScraper.prepareAutoConnector(queue.id);
     console.log(links)
 

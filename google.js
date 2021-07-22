@@ -25,6 +25,7 @@ module.exports.saveOnDisk = async function (dataObjects, type) {
             // Authorize a client with credentials, then call the Google Tasks API.
             authorize(JSON.parse(content))
                 .then(function (value) {
+                    //google.auth.setAccessType("offline");
                     auth = value;
                     uploadCsv(value, type).then(function (value) {
                         if (typeof value.success !== 'undefined' && value.success === false) {

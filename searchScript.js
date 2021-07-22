@@ -20,7 +20,7 @@ module.exports.startSearch = async function (accountId) {
         queue_id: 0,
         in_progress: 1
     };
-    let reportId = await Scheduler.makeReport(report);
+    let reportId = await Database.getIdOfLastWorkingReport(accountId, report.script);
     do {
         let query = await Database.getSearchQueryByAccountId(accountId);
         if (query === false) {
@@ -36,7 +36,7 @@ module.exports.startSearch = async function (accountId) {
         if (result.error) {
             report.error = result.error;
             report.in_progress = 0;
-            await Scheduler.updateReport(reportId, report);
+            await Scheduler.updateReport(reportId, report);I
             break;
         }
 

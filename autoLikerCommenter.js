@@ -96,22 +96,21 @@ let reportId = 0;
 module.exports.startLiker = async function (accountId) {
     console.time("liker");
     report.account_id = accountId;
+    reportId = await Database.getIdOfLastWorkingReport(accountId, report.script);
     let queue = await Database.getNotLikedQueueByAccountId(accountId);
     if (queue === false ) {
         report.error = errors.allQueuesProcessed;
         report.in_progress = 0;
-        await Scheduler.makeReport(report);
+        await Scheduler.updateReport(reportId, report);
         return new Promise((resolve, reject) => {
             resolve(false);
         });
         // await Database.closeDatabaseConnection();
         // process.exit();
     }
-    report.account_id = queue.account_id;
     report.queue_id = queue.id;
     fs.appendFile('log.txt', '\n Queue for liker = ' + queue.id, function (err) {
     });
-    reportId = await Scheduler.makeReport(report);
     let result = await Database.getNotLikedUsersArray(queue.id)
     if (result !== false) {
         console.log(result)

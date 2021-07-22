@@ -176,7 +176,9 @@ class DBManager {
     }
 
     async getAccounts() {
-        let sql = (`SELECT * FROM accounts WHERE active = 1`);
+        let sql = (`SELECT *
+                    FROM accounts
+                    WHERE active = 1`);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -423,6 +425,22 @@ class DBManager {
                 } else {
                     console.log("Report saved!")
                     resolve(result.insertId);
+                }
+            });
+        });
+    }
+
+    async getIdOfLastWorkingReport(accountId, script) {
+        let sql = (` SELECT * FROM jobsLaunches WHERE account_id = ${accountId} AND in_progress = 1 AND script = '${script}' ORDER BY id DESC LIMIT 1`);
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0].id)
+                } else {
+                    resolve(false);
                 }
             });
         });
