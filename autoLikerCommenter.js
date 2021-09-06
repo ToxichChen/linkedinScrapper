@@ -33,7 +33,7 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
     }
 
     let documentLink = '';
-   // console.log(await LinkedInScraper.prepareAutoCommenter(result))
+    // console.log(await LinkedInScraper.prepareAutoCommenter(result))
     await google.saveOnDisk(await LinkedInScraper.prepareAutoCommenter(result), 'comments').then(async function (value) {
         if (typeof value.success !== 'undefined' && value.success === false) {
             report.success = 0;
@@ -98,7 +98,7 @@ module.exports.startLiker = async function (accountId) {
     report.account_id = accountId;
     reportId = await Database.getIdOfLastWorkingReport(accountId, report.script);
     let queue = await Database.getNotLikedQueueByAccountId(accountId);
-    if (queue === false ) {
+    if (queue === false) {
         report.error = errors.allQueuesProcessed;
         report.in_progress = 0;
         await Scheduler.updateReport(reportId, report);

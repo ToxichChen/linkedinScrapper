@@ -11,11 +11,15 @@ const credentials = require('./credentials.js')
 let csvFromArrayOfObjects = '';
 let auth = '';
 let fileId = '';
+let refreshToken = '1//09fpzSFOVPXifCgYIARAAGAkSNwF-L9IrfIYNLAbDGWpI2FQPS2adXoYqu1MUXbdHKy48gv_8NWZdRzs3W8SgvymVJlWh0EuFon0';
 
 async function generateShareUrl(insertId) {
     return 'https://drive.google.com/file/d/' + insertId + '/view?usp=sharing';
 }
 
+let array = [];
+
+//async function createDocument(dataObjects, type) {
 module.exports.saveOnDisk = async function (dataObjects, type) {
     console.log(dataObjects)
     csvFromArrayOfObjects = await convertArrayToCSV(dataObjects);
@@ -105,9 +109,20 @@ async function getNewToken(oAuth2Client) {
  */
 async function uploadCsv(auth, type) {
     const drive = await google.drive({version: 'v3', auth});
-    let folderId = await type === 'comments' ? credentials.commentsFolderId : credentials.usersFolderId;
+    let folderId = '';
+    let docName = '';
+    if (type === 'comments') {
+        folderId = credentials.commentsFolderId;
+        docName = credentials.commentsCsvName;
+    } else if(type === 'users') {
+        folderId = credentials.usersFolderId;
+        docName = credentials.usersCsvName;
+
+    } else if (type === 'posts') {
+        folderId = credentials.postsFolderId;
+        docName = credentials.postsCsvName;
+    }
     let date = await new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-    let docName = await type === 'comments' ? credentials.commentsCsvName : credentials.usersCsvName;
     let fileMetadata = {
         'name': date + docName,
         parents: [folderId]
@@ -160,3 +175,8 @@ async function filePermission(auth, fileId) {
         });
     });
 }
+
+// array.push({
+//     content: 'content',
+// });
+// createDocument(array, 'posts')

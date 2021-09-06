@@ -417,7 +417,8 @@ class DBManager {
     }
 
     async saveReportToDatabase(result) {
-        let sql = (`INSERT INTO jobsLaunches (script, success, error_massage, account_id, queue_id, in_progress) VALUES ("${result.script}", ${result.success} , "${result.error}" , ${result.account_id}, ${result.queue_id}, ${result.in_progress}) `);
+        let sql = (`INSERT INTO jobsLaunches (script, success, error_massage, account_id, queue_id, in_progress)
+                    VALUES ("${result.script}", ${result.success} , "${result.error}" , ${result.account_id}, ${result.queue_id}, ${result.in_progress}) `);
         return await new Promise((resolve, reject) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
@@ -456,6 +457,86 @@ class DBManager {
                     console.log("Report updated!")
                 }
                 resolve(result);
+            });
+        });
+    }
+
+    async getAllPosts() {
+        let sql = (` SELECT *
+                     FROM posts`);
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result)
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getNotPostedPostsByAccountId(accountId) {
+        let sql = (` SELECT * FROM posts WHERE account_id = ${accountId} AND is_posted = 0`);
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result)
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getPostsByAccountId(accountId) {
+        let sql = (` SELECT * FROM posts WHERE account_id = ${accountId}`);
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result)
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getNotPostedPostByAccountId(accountId) {
+        let sql = (`SELECT * FROM posts WHERE account_id = ${accountId} AND is_posted = 0 LIMIT 1`);
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async savePost(result) {
+        let sql = (`INSERT INTO posts (link, text, work_sphere, account_id)
+                    VALUES ("${result.link}", "${result.text}", "${result.work_sphere}" , ${result.account_id})`);
+        return await new Promise((resolve, reject) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Post saved!")
+                    resolve(result.insertId);
+                }
             });
         });
     }

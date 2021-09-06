@@ -156,6 +156,27 @@ class LinkedInScraper {
         });
     }
 
+    async runAutoPoster(documentLink, sessionToken) {
+        return await new Promise((resolve) => {
+            axios
+                .post(
+                    "https://api.phantombuster.com/api/v2/agents/launch",
+                    {
+                        "id" : credentials.autoPosterId,
+                        "argument":{
+                            "numberTweetsPerLaunch": 1,
+                            "visibility": "anyone",
+                            "sessionCookie": sessionToken,
+                            "spreadsheetUrl": documentLink,
+                            "columnName": "content"
+                    }},
+                    credentials.initOptions,
+                )
+                .then((res) => resolve(res.data.containerId))
+                .catch((error) => console.error("Something went wrong :(", error))
+        });
+    }
+
     /**
      * Run Phantombuster's Auto Liker agent
      *
@@ -280,8 +301,8 @@ class LinkedInScraper {
      */
 
     async prepareAutoCommenter(activities) {
-        let comments = await this.DBManager.getCommentsArray();
-
+        let comments = await this.shuffleComments(await this.DBManager.getCommentsArray());
+        console.log(comments)
         let formattedData = []
         return await new Promise((resolve, reject) => {
             for (const value of activities) {
@@ -293,6 +314,21 @@ class LinkedInScraper {
             }
             resolve(formattedData);
         })
+    }
+
+    async shuffleComments(array) {
+        let currentIndex = array.length,  randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
+        return array;
     }
 
 }

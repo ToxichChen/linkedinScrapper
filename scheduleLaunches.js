@@ -50,6 +50,7 @@ async function startScrapper() {
                     }
                 }
             }
+            console.log(planToLaunch)
             for (const launch of planToLaunch) {
                 if (launch.script === 'search') {
                     await searchScript.startSearch(account.id);
@@ -59,7 +60,6 @@ async function startScrapper() {
                     await autoConnectScript.startAutoConnect(account.id);
                 }
             }
-            console.log(planToLaunch)
         } else {
             await searchScript.startSearch(account.id);
             await autoLikerScript.startLiker(account.id);

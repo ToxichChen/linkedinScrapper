@@ -36,7 +36,7 @@ module.exports.startSearch = async function (accountId) {
         if (result.error) {
             report.error = result.error;
             report.in_progress = 0;
-            await Scheduler.updateReport(reportId, report);I
+            await Scheduler.updateReport(reportId, report);
             break;
         }
 
