@@ -19,7 +19,7 @@ class LinkedInScraper {
      */
 
     async startLinkedInSearchForPeople(query, fileName, sessionToken) {
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
             axios
                 .post(
                     "https://api.phantombuster.com/api/v2/agents/launch",
@@ -52,7 +52,7 @@ class LinkedInScraper {
      *
      * @param containerId
      * @param scrapperId
-     * @returns {Promise<any>}
+     * @returns {Promise<object|boolean>}
      */
 
     async getResults(containerId, scrapperId) {
@@ -185,7 +185,7 @@ class LinkedInScraper {
      * @returns {Promise<void>}
      */
     async runAutoLiker(documentLink, sessionToken) {
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
             axios
                 .post(
                     "https://api.phantombuster.com/api/v2/agents/launch",
@@ -213,7 +213,7 @@ class LinkedInScraper {
      * @returns {Promise<void>}
      */
     async runAutoCommenter(documentLink, sessionToken) {
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
             axios
                 .post(
                     "https://api.phantombuster.com/api/v2/agents/launch",
@@ -245,7 +245,7 @@ class LinkedInScraper {
      */
 
     async runAutoConnect(documentUrl, sessionToken) {
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
             axios
                 .post(
                     "https://api.phantombuster.com/api/v2/agents/launch",
@@ -278,7 +278,7 @@ class LinkedInScraper {
     async prepareAutoConnector(queueId) {
         let urls = await this.DBManager.getNotConnectedUsersArray(queueId);
         let formattedData = [];
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
             if (urls === false) {
                 resolve(false);
             }
@@ -304,7 +304,7 @@ class LinkedInScraper {
         let comments = await this.shuffleComments(await this.DBManager.getCommentsArray());
         console.log(comments)
         let formattedData = []
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
             for (const value of activities) {
                 let commentsIndex = Math.floor(Math.random() * Math.floor(comments.length));
                 formattedData.push({

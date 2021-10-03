@@ -16,13 +16,16 @@ async function makePosts() {
         report.in_progress = 0;
         report.error = errors.noActiveAccounts;
         console.log(report.error);
+        await Scheduler.sendErrorNotification(report.error, report.script);
         await Scheduler.updateReport(reportId, report);
         process.exit();
     }
     for (const account of accountsArray) {
         let post = await Database.getNotPostedPostByAccountId(account.id);
         if (post === false) {
-            console.log("Posts for account " + account.name + " " + account.last_name +" are not found!")
+            let postsError = "Posts for account " + account.name + " " + account.last_name + " are not found!";
+            console.log(postsError)
+            await Scheduler.sendErrorNotification(postsError, report.script, account.name + " " + account.last_name);
             continue;
         }
         console.log(post)
@@ -35,6 +38,7 @@ async function makePosts() {
                 report.error = value.errorMessage;
                 report.in_progress = 0;
                 await Scheduler.updateReport(reportId, report);
+                await Scheduler.sendErrorNotification(report.error, report.script, account.name + " " + account.last_name);
                 await Database.closeDatabaseConnection();
                 fs.appendFile('log.txt', '\n Code finished with error:' + value.errorMessage, function (err) {
                 });
@@ -48,14 +52,18 @@ async function makePosts() {
                     report.error = result.error;
                     report.in_progress = 0;
                     await Scheduler.updateReport(reportId, report);
-                    //  process.exit();
+                    await Scheduler.sendErrorNotification(report.error, report.script, account.name + " " + account.last_name);
+                    await Database.closeDatabaseConnection();
+                    process.exit();
                 }
-                report.success = 1;
-                report.in_progress = 0;
-                await Scheduler.updateReport(reportId, report);
             })
         });
     }
+    report.success = 1;
+    report.in_progress = 0;
+    await Scheduler.updateReport(reportId, report);
+    await Database.closeDatabaseConnection();
+    process.exit();
 }
 
 let report = {

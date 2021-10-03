@@ -11,3 +11,32 @@ module.exports.allConnected = 'All connections for this search were already sent
 
 // Posts parser errors:
 module.exports.dataNotReceived = 'Parsing error - data not received';
+
+// Slack message notification
+module.exports.slackMessageNotification = async function (errorMessage, environment, script, accountName = '') {
+    return {
+        'username': 'Error notifier', // This will appear as user name who posts the message
+        'text': errorMessage, // text
+        'icon_emoji': ':bangbang:', // User icon, you can also use custom icons here
+        'attachments': [{ // this defines the attachment block, allows for better layout usage
+            'color': '#eed140', // color of the attachments sidebar.
+            'fields': [ // actual fields
+                {
+                    'title': 'Environment', // Custom field
+                    'value': environment, // Custom value
+                    'short': true // long fields will be full width
+                },
+                {
+                    'title': 'Script',
+                    'value': script,
+                    'short': true
+                },
+                {
+                    'title': 'Account',
+                    'value': accountName,
+                    'short': true
+                }
+            ]
+        }]
+    };
+};

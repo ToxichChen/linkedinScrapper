@@ -27,19 +27,18 @@ async function startScrapper() {
                     if (time < Date.now()) {
                         planToLaunch.push(launch);
                         report.script = 'search';
-                        report.account_id =
-                             account.id;
+                        report.account_id = account.id;
                         await Scheduler.makeReport(report);
                     }
                     // if launch time + 2hrs < now -> launch again
                 } else if (launch.script === 'autoLikerCommenter') {
                     let time = Date.parse(launch.date) + (3 * 60 * 60 * 1000) + (30 * 60 * 1000);
-                     if (time < Date.now()) {
-                         planToLaunch.push(launch);
-                         report.script = 'autoLikerCommenter';
-                         report.account_id = account.id;
-                         await Scheduler.makeReport(report);
-                     }
+                    if (time < Date.now()) {
+                        planToLaunch.push(launch);
+                        report.script = 'autoLikerCommenter';
+                        report.account_id = account.id;
+                        await Scheduler.makeReport(report);
+                    }
                 } else if (launch.script === 'autoConnect') {
                     let time = Date.parse(launch.date) + (3 * 60 * 60 * 1000) + (10 * 60 * 1000);
                     if (time < Date.now()) {

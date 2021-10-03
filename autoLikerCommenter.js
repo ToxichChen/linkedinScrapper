@@ -24,6 +24,7 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
         report.in_progress = 0;
         fs.appendFile('log.txt', '\n' + result.error, function (err) {
         });
+        await Scheduler.sendErrorNotification(report.error, report.script);
         await Scheduler.updateReport(reportId, report);
         //await Database.closeDatabaseConnection();
         return false;
@@ -39,6 +40,7 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
             report.success = 0;
             report.in_progress = 0;
             report.error = value.errorMessage;
+            await Scheduler.sendErrorNotification(report.error, report.script);
             await Scheduler.updateReport(reportId, report);
             //await Database.closeDatabaseConnection();
             fs.appendFile('log.txt', '\n' + value.errorMessage, function (err) {
@@ -52,6 +54,7 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
                 if (likerResult.error) {
                     report.error = result.error;
                     report.in_progress = 0;
+                    await Scheduler.sendErrorNotification(report.error, report.script);
                     await Scheduler.updateReport(reportId, report)
                     return false;
                 }
@@ -67,6 +70,7 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
                         report.in_progress = 0;
                         fs.appendFile('log.txt', '\n' + result.error, function (err) {
                         });
+                        await Scheduler.sendErrorNotification(report.error, report.script);
                         await Scheduler.updateReport(reportId, report);
                         return false;
                     }
@@ -101,6 +105,7 @@ module.exports.startLiker = async function (accountId) {
     if (queue === false) {
         report.error = errors.allQueuesProcessed;
         report.in_progress = 0;
+        await Scheduler.sendErrorNotification(report.error, report.script);
         await Scheduler.updateReport(reportId, report);
         return new Promise((resolve, reject) => {
             resolve(false);

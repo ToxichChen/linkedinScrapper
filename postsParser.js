@@ -15,6 +15,7 @@ async function comparePost(accountId, savedPosts, link) {
 async function getData(url) {
     let accountsArray = await Database.getAccounts();
     let savedPosts = await Database.getAllPosts();
+    let newPostSaved = 0;
     reportId = await Scheduler.makeReport(report);
     if (accountsArray === false) {
         report.in_progress = 0;
@@ -46,42 +47,58 @@ async function getData(url) {
             }
             await page.click('input[type="submit"]');
 
-            await page.waitForSelector('.results');
-            console.log(await page.evaluate(() => location.href));
+            do {
+                await page.waitForSelector('.results');
 
-            let links = await page.evaluate(() => {
-                let elements = Array.from(document.querySelectorAll('body > div.pagecont > div.ed > div.results > div > div.items > div > div.ii > strong.L2 a'));
-                return elements.map(element => {
-                    return element.getAttribute('href');
-                })
-            });
+                console.log(await page.evaluate(() => location.href));
 
-            let texts = await page.evaluate(() => {
-                let elements = Array.from(document.querySelectorAll('body > div.pagecont > div.ed > div.results > div > div.items > div > div.ii'));
-                return elements.map(element => {
-                    return element.textContent;
-                })
-            });
+                let links = await page.evaluate(() => {
+                    let elements = Array.from(document.querySelectorAll('body > div.pagecont > div.ed > div.results > div > div.items > div > div.ii > strong.L2 a'));
+                    return elements.map(element => {
+                        return element.getAttribute('href');
+                    })
+                });
 
-            if (typeof texts === 'undefined' || typeof links === 'undefined' || links.length === 0 || texts.length === 0) {
-                report.in_progress = 0;
-                report.error = errors.dataNotReceived;
-                console.log(report.error);
-                await Scheduler.updateReport(reportId, report);
-                process.exit();
-            }
+                let texts = await page.evaluate(() => {
+                    let elements = Array.from(document.querySelectorAll('body > div.pagecont > div.ed > div.results > div > div.items > div > div.ii'));
+                    return elements.map(element => {
+                        return element.textContent;
+                    })
+                });
 
-            for (let i = 0; i < texts.length; i++) {
-                if (savedPosts === false || await comparePost(account.id, savedPosts, links[i].trim())) {
-                    let result = {
-                        link: links[i].trim(),
-                        text: texts[i].trim(),
-                        work_sphere: account.work_sphere,
-                        account_id: account.id,
-                    }
-                    await Database.savePost(result);
+                if (typeof texts === 'undefined' || typeof links === 'undefined' || links.length === 0 || texts.length === 0) {
+                    report.in_progress = 0;
+                    report.error = errors.dataNotReceived;
+                    console.log(report.error);
+                    await Scheduler.updateReport(reportId, report);
+                    process.exit();
                 }
-            }
+
+                for (let i = 0; i < texts.length; i++) {
+                    if (savedPosts === false || await comparePost(account.id, savedPosts, links[i].trim())) {
+                        let result = {
+                            link: links[i].trim(),
+                            text: texts[i].trim(),
+                            work_sphere: account.work_sphere,
+                            account_id: account.id,
+                        }
+                        await Database.savePost(result);
+                        newPostSaved++;
+                    }
+                }
+                await page.waitForSelector('body > div.pagecont > div.ed > div.results > div > div.prevnext');
+
+                let lastButton = await page.$('body > div.pagecont > div.ed > div.results > div > div.prevnext > a:last-child');
+
+                if (newPostSaved === 0 && typeof lastButton !== 'undefined') {
+                    if (await page.evaluate(el => el.textContent, lastButton) === "Next >") {
+                        await lastButton.click();
+                    } else {
+                        newPostSaved = 1;
+                    }
+                }
+
+            } while (newPostSaved === 0)
         }
         console.log(" - Finished successfully! - ");
         report.in_progress = 0;

@@ -36,6 +36,7 @@ module.exports.startAutoConnect = async function (accountId) {
     if (queue === false) {
         report.error = errors.allQueuesProcessed;
         report.in_progress = 0;
+        await Scheduler.sendErrorNotification(report.error, report.script);
         await Scheduler.updateReport(reportId, report);
         return new Promise((resolve, reject) => {
             resolve(false);
@@ -52,6 +53,7 @@ module.exports.startAutoConnect = async function (accountId) {
             if (typeof value.success !== 'undefined' && value.success === false) {
                 report.error = value.errorMessage;
                 report.in_progress = 0;
+                await Scheduler.sendErrorNotification(report.error, report.script);
                 await Scheduler.updateReport(reportId, report);
                 //await Database.closeDatabaseConnection();
                 fs.appendFile('log.txt', '\n Code finished with error:' + value.errorMessage, function (err) {
@@ -68,6 +70,7 @@ module.exports.startAutoConnect = async function (accountId) {
                     if (result.error) {
                         report.error = result.error;
                         report.in_progress = 0;
+                        await Scheduler.sendErrorNotification(report.error, report.script);
                         await Scheduler.updateReport(reportId, report);
                         //  process.exit();
                     }

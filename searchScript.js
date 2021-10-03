@@ -27,6 +27,7 @@ module.exports.startSearch = async function (accountId) {
             report.error = errors.allQueriesSearched;
             console.log(report.error)
             report.in_progress = 0;
+            await Scheduler.sendErrorNotification(report.error, report.script);
             await Scheduler.updateReport(reportId, report);
             break
         }
@@ -36,6 +37,7 @@ module.exports.startSearch = async function (accountId) {
         if (result.error) {
             report.error = result.error;
             report.in_progress = 0;
+            await Scheduler.sendErrorNotification(report.error, report.script);
             await Scheduler.updateReport(reportId, report);
             break;
         }
