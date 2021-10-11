@@ -227,6 +227,22 @@ class DBManager {
         });
     }
 
+    async getAccountFullNameByID(accountId) {
+        let sql = (`SELECT name, last_name FROM accounts WHERE id = ${accountId}`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0].name + ' ' + result[0].last_name)
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
     async createQueue(accountId, searchQueryId) {
         let sql = (`INSERT INTO queues (account_id, search_query_id) VALUES (${accountId} ,  ${searchQueryId} ) `);
         return await new Promise((resolve) => {

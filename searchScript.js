@@ -21,23 +21,23 @@ module.exports.startSearch = async function (accountId) {
         in_progress: 1
     };
     let reportId = await Database.getIdOfLastWorkingReport(accountId, report.script);
+    report.account_id = accountId;
     do {
         let query = await Database.getSearchQueryByAccountId(accountId);
         if (query === false) {
             report.error = errors.allQueriesSearched;
             console.log(report.error)
             report.in_progress = 0;
-            await Scheduler.sendErrorNotification(report.error, report.script);
+            await Scheduler.sendErrorNotification(report.error, report.script, await Database.getAccountFullNameByID(report.account_id));
             await Scheduler.updateReport(reportId, report);
             break
         }
-        report.account_id = query.account_id;
         let containerId = await LinkedInScraper.startLinkedInSearchForPeople(query.query, query.file_name, await Database.getAccountSessionByID(query.account_id));
         result = await LinkedInScraper.getResults(containerId, credentials.searchScrapperId);
         if (result.error) {
             report.error = result.error;
             report.in_progress = 0;
-            await Scheduler.sendErrorNotification(report.error, report.script);
+            await Scheduler.sendErrorNotification(report.error, report.script, await Database.getAccountFullNameByID(report.account_id));
             await Scheduler.updateReport(reportId, report);
             break;
         }
