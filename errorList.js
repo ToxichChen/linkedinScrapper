@@ -12,6 +12,11 @@ module.exports.allConnected = 'All connections for this search were already sent
 // Posts parser errors:
 module.exports.dataNotReceived = 'Parsing error - data not received';
 
+// Companies parser errors:
+module.exports.allCompaniesParsed = 'All companies have been already parsed!';
+module.exports.noWorkSpheresFound = 'No available work spheres were found!';
+
+
 // Slack message notification
 module.exports.slackMessageNotification = async function (errorMessage, environment, script, accountName = '') {
     return {

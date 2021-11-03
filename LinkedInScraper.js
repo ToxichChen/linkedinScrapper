@@ -48,6 +48,41 @@ class LinkedInScraper {
     }
 
     /**
+     * Running search process on PhantomBuster
+     *
+     * @param query
+     * @param fileName
+     * @param sessionToken
+     * @returns {Promise<string>}
+     */
+
+    async startSalesNavCompanyEmployeesParser(query, fileName, sessionToken) {
+        return await new Promise((resolve) => {
+            axios
+                .post(
+                    "https://api.phantombuster.com/api/v2/agents/launch",
+                    {
+                        "id": credentials.salesNavSearchExtractor,
+                        "argument":
+                            {
+                                "numberOfProfiles": 10,
+                                "extractDefaultUrl": true,
+                                "removeDuplicateProfiles": true,
+                                "accountSearch": false,
+                                "sessionCookie": sessionToken,
+                                "searches": query,
+                                "numberOfResultsPerSearch": 2500,
+                                "csvName": fileName
+                            }
+                    },
+                    credentials.initOptions,
+                )
+                .then((res) => resolve(res.data.containerId))
+                .catch((error) => console.error("Something went wrong :(", error))
+        })
+    }
+
+    /**
      * Wait for container's work finish and get results from PhantomBuster's containers
      *
      * @param containerId
@@ -162,14 +197,15 @@ class LinkedInScraper {
                 .post(
                     "https://api.phantombuster.com/api/v2/agents/launch",
                     {
-                        "id" : credentials.autoPosterId,
-                        "argument":{
+                        "id": credentials.autoPosterId,
+                        "argument": {
                             "numberTweetsPerLaunch": 1,
                             "visibility": "anyone",
                             "sessionCookie": sessionToken,
                             "spreadsheetUrl": documentLink,
                             "columnName": "content"
-                    }},
+                        }
+                    },
                     credentials.initOptions,
                 )
                 .then((res) => resolve(res.data.containerId))
@@ -317,7 +353,7 @@ class LinkedInScraper {
     }
 
     async shuffleComments(array) {
-        let currentIndex = array.length,  randomIndex;
+        let currentIndex = array.length, randomIndex;
 
         // While there remain elements to shuffle...
         while (0 !== currentIndex) {

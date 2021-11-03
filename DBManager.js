@@ -193,6 +193,24 @@ class DBManager {
         });
     }
 
+    async getAccountsWithSalesNav() {
+        let sql = (`SELECT *
+                    FROM accounts
+                    WHERE active = 1 AND has_sales_nav = 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result)
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
     async getJobsLaunchesByAccount(accountId) {
         let sql = (`SELECT * FROM jobsLaunches WHERE account_id = ${accountId} AND date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'search')
                                                   or account_id = ${accountId} AND date IN (SELECT max(date) FROM jobsLaunches WHERE account_id = ${accountId} AND script = 'autoConnect')
@@ -551,6 +569,84 @@ class DBManager {
                     throw err;
                 } else {
                     console.log("Post saved!")
+                    resolve(result.insertId);
+                }
+            });
+        });
+    }
+
+    async getNotParsedCompanyQuery() {
+        let sql = (`SELECT * FROM company_queries WHERE is_parsed = 0 LIMIT 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getNotParsedCompany() {
+        let sql = (`SELECT * FROM companies WHERE is_parsed = 0 LIMIT 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getWorkSpheres() {
+        let sql = (`SELECT * FROM work_spheres`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result)
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async createCompanyQuery(companyName, title, link, resultFile, accountId, companyId, workSphereId) {
+        let sql = (`INSERT INTO company_queries (company, title, link, result_file, account_id, company_id, work_sphere_id)
+                    VALUES ("${companyName}", "${title}", "${link}", "${resultFile}" , ${accountId}, ${companyId}, ${workSphereId} ) `);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Company query saved!")
+                    resolve(result.insertId);
+                }
+            });
+        });
+    }
+
+    async createEmployee(result, companyId, workSphereId) {
+        let sql = (`INSERT INTO employees (name, last_name, full_name, linkedin_url, company_id, title, work_sphere_id, location, duration, past_role, past_company, past_company_url, sales_nav_url)
+                    VALUES ("${result.firstName}", "${result.lastName}", "${result.fullName}", "${result.defaultProfileUrl}", ${companyId}, "${result.title}", ${workSphereId}, "${result.location}", "${result.duration}","${result.pastRole}","${result.pastCompany}","${result.pastCompanyUrl}","${result.profileUrl}" ) `);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Employee saved!")
                     resolve(result.insertId);
                 }
             });

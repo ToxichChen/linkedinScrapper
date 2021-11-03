@@ -30,7 +30,7 @@ module.exports.startSearch = async function (accountId) {
             report.in_progress = 0;
             await Scheduler.sendErrorNotification(report.error, report.script, await Database.getAccountFullNameByID(report.account_id));
             await Scheduler.updateReport(reportId, report);
-            break
+            break;
         }
         let containerId = await LinkedInScraper.startLinkedInSearchForPeople(query.query, query.file_name, await Database.getAccountSessionByID(query.account_id));
         result = await LinkedInScraper.getResults(containerId, credentials.searchScrapperId);

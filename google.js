@@ -117,7 +117,6 @@ async function uploadCsv(auth, type) {
     } else if(type === 'users') {
         folderId = credentials.usersFolderId;
         docName = credentials.usersCsvName;
-
     } else if (type === 'posts') {
         folderId = credentials.postsFolderId;
         docName = credentials.postsCsvName;
