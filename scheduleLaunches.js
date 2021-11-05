@@ -10,7 +10,6 @@ async function startScrapper() {
         console.log(account)
         let lastLaunches = await Database.getJobsLaunchesByAccount(account.id);
         console.log(lastLaunches)
-        process.exit(1);
         if (lastLaunches !== false && lastLaunches.length === 3) {
             console.log(account.id)
             let planToLaunch = [];
