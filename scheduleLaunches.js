@@ -11,16 +11,16 @@ async function startScrapper() {
         let lastLaunches = await Database.getJobsLaunchesByAccount(account.id);
         console.log(lastLaunches)
         let planToLaunch = [];
+        let report = {
+            script: '',
+            success: 0,
+            error: '',
+            account_id: 0,
+            queue_id: 0,
+            in_progress: 1
+        };
         if (lastLaunches !== false && lastLaunches.length === 3) {
             console.log(account.id)
-            let report = {
-                script: '',
-                success: 0,
-                error: '',
-                account_id: 0,
-                queue_id: 0,
-                in_progress: 1
-            };
             for (const launch of lastLaunches) {
                 if (launch.script === 'search') {
                     let time = Date.parse(launch.date) + (2 * 60 * 60 * 1000);
