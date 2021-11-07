@@ -15,6 +15,7 @@ module.exports.dataNotReceived = 'Parsing error - data not received';
 // Companies parser errors:
 module.exports.allCompaniesParsed = 'All companies have been already parsed!';
 module.exports.noWorkSpheresFound = 'No available work spheres were found!';
+module.exports.noActiveAccountsWithSalesNav = 'No active accounts with Sales Navigator found!';
 
 
 // Slack message notification

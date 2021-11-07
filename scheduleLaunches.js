@@ -10,9 +10,9 @@ async function startScrapper() {
         console.log(account)
         let lastLaunches = await Database.getJobsLaunchesByAccount(account.id);
         console.log(lastLaunches)
+        let planToLaunch = [];
         if (lastLaunches !== false && lastLaunches.length === 3) {
             console.log(account.id)
-            let planToLaunch = [];
             let report = {
                 script: '',
                 success: 0,
@@ -49,20 +49,29 @@ async function startScrapper() {
                     }
                 }
             }
-            console.log(planToLaunch)
-            for (const launch of planToLaunch) {
-                if (launch.script === 'search') {
-                    await searchScript.startSearch(account.id);
-                } else if (launch.script === 'autoLikerCommenter') {
-                    await autoLikerScript.startLiker(account.id);
-                } else if (launch.script === 'autoConnect') {
-                    await autoConnectScript.startAutoConnect(account.id);
-                }
-            }
         } else {
-            await searchScript.startSearch(account.id);
-            await autoLikerScript.startLiker(account.id);
-            await autoConnectScript.startAutoConnect(account.id);
+            report.script = 'search';
+            planToLaunch.push({script: report.script});
+            report.account_id = account.id;
+            await Scheduler.makeReport(report);
+            report.script = 'autoLikerCommenter';
+            planToLaunch.push({script: report.script});
+            report.account_id = account.id;
+            await Scheduler.makeReport(report);
+            report.script = 'autoConnect';
+            planToLaunch.push({script: report.script});
+            report.account_id = account.id;
+            await Scheduler.makeReport(report);
+        }
+        console.log(planToLaunch)
+        for (const launch of planToLaunch) {
+            if (launch.script === 'search') {
+                await searchScript.startSearch(account.id);
+            } else if (launch.script === 'autoLikerCommenter') {
+                await autoLikerScript.startLiker(account.id);
+            } else if (launch.script === 'autoConnect') {
+                await autoConnectScript.startAutoConnect(account.id);
+            }
         }
     }
     await Database.closeDatabaseConnection();

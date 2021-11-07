@@ -8,7 +8,7 @@ const fs = require('fs');
 
 
 async function sleep() {
-    let time = Math.floor(Math.random() * (180000 - 30000) + 30000);
+    let time = Math.floor(Math.random() * (60000 - 30000) + 30000);
     return new Promise((resolve) => {
         setTimeout(resolve, time);
     });
@@ -49,7 +49,7 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
         } else {
             documentLink = value;
             await sleep();
-            await LinkedInScraper.runAutoLiker(value, await Database.getAccountSessionByID(queue.account_id)).then(async function (value) {
+            await LinkedInScraper.runAutoLiker(value, await Database.getActcountSessionByID(queue.account_id)).then(async function (value) {
                 let likerResult = await LinkedInScraper.getResults(value, credentials.autoLikerId)
                 if (likerResult.error) {
                     report.error = result.error;
