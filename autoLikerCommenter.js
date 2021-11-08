@@ -49,7 +49,7 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
         } else {
             documentLink = value;
             await sleep();
-            await LinkedInScraper.runAutoLiker(value, await Database.getActcountSessionByID(queue.account_id)).then(async function (value) {
+            await LinkedInScraper.runAutoLiker(value, await Database.getAccountSessionByID(queue.account_id)).then(async function (value) {
                 let likerResult = await LinkedInScraper.getResults(value, credentials.autoLikerId)
                 if (likerResult.error) {
                     report.error = result.error;
@@ -57,10 +57,11 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
                     await Scheduler.sendErrorNotification(report.error, report.script, await Database.getAccountFullNameByID(report.account_id));
                     await Scheduler.updateReport(reportId, report)
                     return false;
+                } else {
+                    fs.appendFile('log.txt', '\n Posts are liked successfully', function (err) {
+                    });
+                    console.log('Posts are liked successfully')
                 }
-                fs.appendFile('log.txt', '\n Posts are liked successfully', function (err) {
-                });
-                console.log('Posts are liked successfully')
             }).then(async function () {
                 await sleep()
                 await LinkedInScraper.runAutoCommenter(documentLink, await Database.getAccountSessionByID(queue.account_id)).then(async function (value) {
@@ -73,10 +74,11 @@ async function useAutoLikerAndAutoCommenter(containerId, queue) {
                         await Scheduler.sendErrorNotification(report.error, report.script, await Database.getAccountFullNameByID(report.account_id));
                         await Scheduler.updateReport(reportId, report);
                         return false;
+                    } else {
+                        fs.appendFile('log.txt', '\n Posts are commented successfully ', function (err) {
+                        });
+                        console.log('Posts are commented successfully')
                     }
-                    fs.appendFile('log.txt', '\n Posts are commented successfully ', function (err) {
-                    });
-                    console.log('Posts are commented successfully')
                 })
             })
         }
