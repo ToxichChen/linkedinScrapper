@@ -14,6 +14,7 @@ async function startScrapper() {
         let report = {
             script: '',
             success: 0,
+            previousError: '',
             error: '',
             account_id: 0,
             queue_id: 0,
@@ -22,6 +23,9 @@ async function startScrapper() {
         if (lastLaunches !== false && lastLaunches.length === 3) {
             console.log(account.id)
             for (const launch of lastLaunches) {
+                // if (launch.error_message !== '') {
+                //     report.previousError = launch.error_message;
+                // }
                 if (launch.script === 'search') {
                     let time = Date.parse(launch.date) + (2 * 60 * 60 * 1000);
                     if (time < Date.now()) {

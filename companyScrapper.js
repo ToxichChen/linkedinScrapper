@@ -31,14 +31,9 @@ async function startSearch() {
     };
     reportId = await Scheduler.makeReport(report);
     console.time("companyParser");
-    //let reportId = await Database.getIdOfLastWorkingReport(accountId, report.script);
     let accountsArray = await Database.getAccountsWithSalesNav();
     if (accountsArray === false) {
-        report.in_progress = 0;
-        report.error = errors.noActiveAccountsWithSalesNav;
-        console.log(report.error);
-        await Scheduler.sendErrorNotification(report.error, report.script);
-        await Scheduler.updateReport(reportId, report);
+        await Scheduler.formReport(report, errors.noActiveAccountsWithSalesNav)
         process.exit();
     }
     for (let account of accountsArray) {
@@ -57,21 +52,21 @@ async function startSearch() {
                 report.error = errors.noActiveAccounts
             }
             if (report.error !== '') {
-                report.in_progress = 0;
-                console.log(report.error);
-                await Scheduler.sendErrorNotification(report.error, report.script);
-                await Scheduler.updateReport(reportId, report);
+                await Scheduler.formReport(report, report.error)
                 continue;
             } else {
                 // TO SEPARATE FUNCTION ?
                 let accountIndex = 0;
                 let link = '';
                 let resultFile = '';
+
                 for (let workSphere of workSpheres) {
                     resultFile = company.company_name + '_' + workSphere.name;
                     //resultFile = company.company_name; // UNCOMMENT FOR 'REMOVE DUPLICATES' OPTION
+
                     link = await buildSearchUrl(company.company_sales_nav_id, workSphere.name, accountsArray[accountIndex].sales_nav_search_session_id /**, accountsArray[accountIndex].ntb_token**/)
                     await Database.createCompanyQuery(company.company_name, workSphere.name, link, resultFile, accountsArray[accountIndex].id, company.id, workSphere.id);
+
                     if (accountIndex + 1 === accountsArray.length) {
                         accountIndex -= accountsArray.length - 1;
                     } else {
@@ -85,11 +80,7 @@ async function startSearch() {
         let containerId = await LinkedInScraper.startSalesNavCompanyEmployeesParser(companyQuery.link, companyQuery.result_file, await Database.getAccountSessionByID(companyQuery.account_id));
         results = await LinkedInScraper.getResults(containerId, credentials.salesNavSearchExtractor);
         if (results.error) {
-            console.log(results.error);
-            report.error = results.error;
-            report.in_progress = 0;
-            await Scheduler.sendErrorNotification(report.error, report.script, await Database.getAccountFullNameByID(report.account_id));
-            await Scheduler.updateReport(reportId, report);
+            await Scheduler.formReport(report, results.error)
             continue;
         }
         console.log(results);
@@ -100,16 +91,12 @@ async function startSearch() {
                 }
             }
         } else {
-            //await Database.updateSearchQuery(query);
+            await Database.updateCompanyQuery(companyQuery.id);
         }
         if (report.error) {
-            report.success = 1;
-            report.in_progress = 0;
-            await Scheduler.updateReport(reportId, report);
+            await Scheduler.formReport(report, results.error);
         } else {
-            report.success = 0;
-            report.in_progress = 0;
-            await Scheduler.updateReport(reportId, report);
+            await Scheduler.formReport(report);
         }
         // } while (results === false)
     }

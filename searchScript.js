@@ -9,36 +9,21 @@ let LinkedInScraper = new LinkedIn();
 let Database = new DBManager();
 let Scheduler = new SchedulerClass();
 //async function startSearch() {
-module.exports.startSearch = async function (accountId) {
+module.exports.startSearch = async function (accountId, report) {
     console.time("search");
     let result = false;
-    let report = {
-        script: 'search',
-        success: 0,
-        error: '',
-        account_id: accountId,
-        queue_id: 0,
-        in_progress: 1
-    };
     let reportId = await Database.getIdOfLastWorkingReport(accountId, report.script);
     report.account_id = accountId;
     do {
         let query = await Database.getSearchQueryByAccountId(accountId);
         if (query === false) {
-            report.error = errors.allQueriesSearched;
-            console.log(report.error)
-            report.in_progress = 0;
-            await Scheduler.sendErrorNotification(report.error, report.script, await Database.getAccountFullNameByID(report.account_id));
-            await Scheduler.updateReport(reportId, report);
+            await Scheduler.formReport(report, errors.allQueriesSearched);
             break;
         }
         let containerId = await LinkedInScraper.startLinkedInSearchForPeople(query.query, query.file_name, await Database.getAccountSessionByID(query.account_id));
         result = await LinkedInScraper.getResults(containerId, credentials.searchScrapperId);
         if (result.error) {
-            report.error = result.error;
-            report.in_progress = 0;
-            await Scheduler.sendErrorNotification(report.error, report.script, await Database.getAccountFullNameByID(report.account_id));
-            await Scheduler.updateReport(reportId, report);
+            await Scheduler.formReport(report, result.error);
             break;
         }
 
@@ -49,10 +34,8 @@ module.exports.startSearch = async function (accountId) {
                     await Database.saveUserToDatabase(user.url, user.firstName, user.lastName, query.account_id, queueId)
                 }
             }
-            report.success = 1;
             report.queue_id = queueId;
-            report.in_progress = 0;
-            await Scheduler.updateReport(reportId, report);
+            await Scheduler.formReport(report, result.error);
         } else {
             await Database.updateSearchQuery(query);
         }

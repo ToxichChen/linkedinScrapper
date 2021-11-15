@@ -451,7 +451,7 @@ class DBManager {
     }
 
     async saveReportToDatabase(result) {
-        let sql = (`INSERT INTO jobsLaunches (script, success, error_massage, account_id, queue_id, in_progress)
+        let sql = (`INSERT INTO jobsLaunches (script, success, error_message, account_id, queue_id, in_progress)
                     VALUES ("${result.script}", ${result.success} , "${result.error}" , ${result.account_id}, ${result.queue_id}, ${result.in_progress}) `);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
@@ -482,7 +482,7 @@ class DBManager {
     }
 
     async updateReport(reportId, result) {
-        let sql = (`UPDATE jobsLaunches SET in_progress = ${result.in_progress}, error_massage = "${result.error}", success = ${result.success} WHERE id = ${reportId}`);
+        let sql = (`UPDATE jobsLaunches SET in_progress = ${result.in_progress}, error_message = "${result.error}", queue_id = ${result.queue_id}, success = ${result.success} WHERE id = ${reportId}`);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
@@ -649,6 +649,18 @@ class DBManager {
                     console.log("Employee saved!")
                     resolve(result.insertId);
                 }
+            });
+        });
+    }
+
+    async updateCompanyQuery(companyQueryId) {
+        let sql = (`UPDATE company_queries SET is_parsed = 1 WHERE id = "${companyQueryId}" AND is_parsed = 0`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, async function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                resolve(result);
             });
         });
     }

@@ -16,6 +16,20 @@ class Scheduler {
         await this.DBManager.updateReport(reportId, result)
     }
 
+    async formReport(report, error = '', previousError = '') {
+        console.log(error);
+        report.error = error;
+        report.in_progress = 0;
+        if (error !== '' && report.success === 0) {
+            if (previousError === '' || previousError !== error) {
+                await this.sendErrorNotification(report.error, report.script, await this.DBManager.getAccountFullNameByID(report.account_id));
+            }
+        } else if (error === '') {
+            report.success = 1;
+        }
+        await this.updateReport(reportId, report);
+    }
+
     async sendErrorNotification(errorMessage, scriptName, accountName = '') {
         if (!credentials.slackWebHook) {
             return false;

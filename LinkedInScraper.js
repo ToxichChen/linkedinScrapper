@@ -259,8 +259,8 @@ class LinkedInScraper {
                             {
                                 "sessionCookie": sessionToken,
                                 "spreadsheetUrl": documentLink,
-                                "columnNameMessage":"comment",
-                                "columnName":"link",
+                                "columnNameMessage": "comment",
+                                "columnName": "link",
                                 "randomComments": false,
                                 "numberOfLinesPerLaunch": 2
                             }
