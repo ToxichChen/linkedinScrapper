@@ -12,6 +12,7 @@ async function startScrapper() {
         console.log(lastLaunches)
         let planToLaunch = [];
         let report = {
+            report_id: 0,
             script: '',
             success: 0,
             previousError: '',
@@ -70,7 +71,8 @@ async function startScrapper() {
         console.log(planToLaunch)
         for (const launch of planToLaunch) {
             if (launch.script === 'search') {
-                await searchScript.startSearch(account.id);
+                report.script = launch.script;
+                await searchScript.startSearch(account.id, report);
             } else if (launch.script === 'autoLikerCommenter') {
                 await autoLikerScript.startLiker(account.id);
             } else if (launch.script === 'autoConnect') {

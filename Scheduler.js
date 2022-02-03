@@ -27,7 +27,7 @@ class Scheduler {
         } else if (error === '') {
             report.success = 1;
         }
-        await this.updateReport(reportId, report);
+        await this.updateReport(report.report_id, report);
     }
 
     async sendErrorNotification(errorMessage, scriptName, accountName = '') {

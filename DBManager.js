@@ -407,7 +407,6 @@ class DBManager {
 
     async saveSearchQueryToDatabase(query, fileName, accountId) {
         let sql = (`INSERT INTO search_queries (query, file_name, account_id) VALUES ( "${query}", "${fileName}", ${accountId}  ) `);
-        //let sql = ('INSERT INTO search_queries (`query`, `file_name`, `account_id`) VALUES (' + '\'' + query + '\'' + ' ,  ' + '\'' + fileName + '\'' + ' ,  ' + '\'' + accountId + '\'' + ' ) ');
         let result = await this.checkSearchQueryIfExists(query);
         let nameResult = await this.checkSearchFileNameIfExists(fileName);
         if (!result.length >= 1) {

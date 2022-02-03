@@ -12,7 +12,7 @@ let Scheduler = new SchedulerClass();
 module.exports.startSearch = async function (accountId, report) {
     console.time("search");
     let result = false;
-    let reportId = await Database.getIdOfLastWorkingReport(accountId, report.script);
+    report.report_id = await Database.getIdOfLastWorkingReport(accountId, report.script);
     report.account_id = accountId;
     do {
         let query = await Database.getSearchQueryByAccountId(accountId);
