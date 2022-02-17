@@ -663,6 +663,181 @@ class DBManager {
             });
         });
     }
+
+    async getSalesNavSearchQueryByAccountId(accountId) {
+        let sql = (`SELECT *
+                FROM sales_nav_search_queries
+                WHERE account_id = ${accountId} AND is_scraped = 0 LIMIT 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getLastSalesNavSearchQuery() {
+        let sql = (`SELECT *
+                FROM sales_nav_search_queries
+                ORDER BY id DESC
+                LIMIT 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getIndustryById(id) {
+        let sql = (`SELECT *
+                FROM industries
+                WHERE id = ${id} LIMIT 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getGeographyById(id) {
+        let sql = (`SELECT *
+                FROM geography
+                WHERE id = ${id} LIMIT 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async getFunctionById(id) {
+        let sql = (`SELECT *
+                FROM functions
+                WHERE id = ${id} LIMIT 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    async createIndustry(name, linkedInId) {
+        let sql = (`INSERT INTO industries (name, linkedin_id) VALUES ('${name}' ,  '${linkedInId}' ) `);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Successfully saved!")
+                }
+                resolve(result.insertId);
+            });
+        });
+    }
+
+    async createFunction(name, linkedInId) {
+        let sql = (`INSERT INTO functions (name, linkedin_id) VALUES ('${name}' ,  '${linkedInId}' ) `);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Successfully saved!")
+                }
+                resolve(result.insertId);
+            });
+        });
+    }
+
+    async createGeography(name, linkedInId) {
+        let sql = (`INSERT INTO geography (name, linkedin_id) VALUES ('${name}' ,  '${linkedInId}' ) `);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Successfully saved!")
+                }
+                resolve(result.insertId);
+            });
+        });
+    }
+
+    async createNewSalesNavQuery(query) {
+        let sql = (`INSERT INTO sales_nav_search_queries (geography_id, function_id, industry_id, search_url, account_id, is_scraped) VALUES (${query.geography_id} , ${query.function_id} , ${query.industry_id} ,  '${query.search_url}', ${query.account_id}, ${query.is_scraped} ) `);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Successfully saved!")
+                }
+                resolve(result.insertId);
+            });
+        });
+    }
+
+    async createCryptoWorker(result, industryId, functionId) {
+        let sql = (`INSERT INTO crypto_workers (name, last_name, full_name, linkedin_url, industry_id, title, function_id, location, duration, past_role, past_company, past_company_url, sales_nav_url, current_company_name, current_company_url, current_company_id)
+                    VALUES ("${result.firstName}", "${result.lastName}", "${result.fullName}", "${result.defaultProfileUrl}", ${industryId}, "${result.title}", ${functionId}, "${result.location}", "${result.duration}","${result.pastRole}","${result.pastCompany}","${result.pastCompanyUrl}","${result.profileUrl}","${result.companyName}","${result.companyUrl}","${result.companyId}" ) `);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Profile saved!")
+                    resolve(result.insertId);
+                }
+            });
+        });
+    }
+
+    async updateSalesNavSearchQuery(searchQueryId) {
+        let sql = (`UPDATE sales_nav_search_queries SET is_scraped = 1 WHERE id = "${searchQueryId}"`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                resolve(result);
+            });
+        });
+    }
+
 }
 
 module.exports = DBManager;

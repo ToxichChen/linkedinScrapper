@@ -10,7 +10,9 @@ module.exports.activitiesScrapperId = '7422671219971695';
 module.exports.autoLikerId = '5589231724643415';
 module.exports.autoCommenterId = '6599370476695509';
 module.exports.autoPosterId = '2224415501361762';
-module.exports.salesNavSearchExtractor = '4151855912951799';
+module.exports.salesNavSearchCompanyExtractor = '4151855912951799';
+module.exports.salesNavSearchExtractor = '8755642581798820';
+
 // ------- ApiKeys:
 module.exports.rocketSearchApiKey = '8cd41kb002500ac227ce845e7e889ac9d40265';
 module.exports.phantomBusterApiKey = 'T4CLwxsXjU5fhOoyAUpz5JADIrGIp1pTViuavE2ZQkI';
@@ -44,4 +46,4 @@ module.exports.SCOPES = ['https://www.googleapis.com/auth/spreadsheets', "https:
 module.exports.TOKEN_PATH = 'token.json';
 
 // Slack WebHook
-module.exports.slackWebHook = 'https://hooks.slack.com/services/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'; // PUT YOUR WEBHOOK URL HERE
+module.exports.slackWebHook = 'https://hooks.slack.com/services/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'; // PUT YOUR WEBHOOK URL HERE

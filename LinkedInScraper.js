@@ -82,6 +82,32 @@ class LinkedInScraper {
         })
     }
 
+    async runSalesNavSearchParser(query, sessionCookie, fileName) {
+        return await new Promise((resolve) => {
+            axios.post(
+                "https://api.phantombuster.com/api/v2/agents/launch",
+                {
+                    "id": credentials.salesNavSearchExtractor,
+                    "argument":
+                        {
+                            "numberOfProfiles": 100,
+                            "extractDefaultUrl": true,
+                            "removeDuplicateProfiles": true,
+                            "accountSearch": false,
+                            "sessionCookie": sessionCookie,
+                            "searches": query,
+                            "numberOfResultsPerSearch": 2500,
+                            "csvName": fileName
+                        },
+                },
+                credentials.initOptions,
+            )
+                .then((res) => resolve(res.data.containerId))
+                .catch((error) => console.error("Something went wrong :(", error))
+        });
+    }
+
+
     /**
      * Wait for container's work finish and get results from PhantomBuster's containers
      *
