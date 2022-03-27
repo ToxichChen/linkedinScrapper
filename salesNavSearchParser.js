@@ -118,6 +118,7 @@ async function startSearch() {
                     }
                 }
             } else {
+                results = false;
                 await Database.updateSalesNavSearchQuery(searchQuery.id);
             }
         } while (results === false)

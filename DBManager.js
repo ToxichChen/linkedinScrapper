@@ -574,8 +574,8 @@ class DBManager {
         });
     }
 
-    async getNotParsedCompanyQuery() {
-        let sql = (`SELECT * FROM company_queries WHERE is_parsed = 0 LIMIT 1`);
+    async getNotParsedCompanyQueryByAccountId(accountId) {
+        let sql = (`SELECT * FROM company_queries WHERE account_id = ${accountId} AND is_parsed = 0 LIMIT 1`);
         return await new Promise((resolve) => {
             this.connection.query(sql, async function (err, result) {
                 if (err) {
@@ -622,9 +622,9 @@ class DBManager {
         });
     }
 
-    async createCompanyQuery(companyName, title, link, resultFile, accountId, companyId, workSphereId) {
-        let sql = (`INSERT INTO company_queries (company, title, link, result_file, account_id, company_id, work_sphere_id)
-                    VALUES ("${companyName}", "${title}", "${link}", "${resultFile}" , ${accountId}, ${companyId}, ${workSphereId} ) `);
+    async createCompanyQuery(companyName, link, resultFile, accountId, companyId, industryId) {
+        let sql = (`INSERT INTO company_queries (company, link, result_file, account_id, company_id, industry_id)
+                    VALUES ("${companyName}", "${link}", "${resultFile}" , ${accountId}, ${companyId}, ${industryId} ) `);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
@@ -637,9 +637,9 @@ class DBManager {
         });
     }
 
-    async createEmployee(result, companyId, workSphereId) {
-        let sql = (`INSERT INTO employees (name, last_name, full_name, linkedin_url, company_id, title, work_sphere_id, location, duration, past_role, past_company, past_company_url, sales_nav_url)
-                    VALUES ("${result.firstName}", "${result.lastName}", "${result.fullName}", "${result.defaultProfileUrl}", ${companyId}, "${result.title}", ${workSphereId}, "${result.location}", "${result.duration}","${result.pastRole}","${result.pastCompany}","${result.pastCompanyUrl}","${result.profileUrl}" ) `);
+    async createEmployee(result, companyId, industryId) {
+        let sql = (`INSERT INTO employees (name, last_name, full_name, linkedin_url, company_id, title, industry_id, location, duration, past_role, past_company, past_company_url, sales_nav_url)
+                    VALUES ("${result.firstName}", "${result.lastName}", "${result.fullName}", "${result.defaultProfileUrl}", ${companyId}, "${result.title}", ${industryId}, "${result.location}", "${result.duration}","${result.pastRole}","${result.pastCompany}","${result.pastCompanyUrl}","${result.profileUrl}" ) `);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {

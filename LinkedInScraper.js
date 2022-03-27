@@ -62,19 +62,19 @@ class LinkedInScraper {
                 .post(
                     "https://api.phantombuster.com/api/v2/agents/launch",
                     {
-                        "id": credentials.salesNavSearchExtractor,
-                        "argument":
-                            {
-                                "numberOfProfiles": 10,
-                                "extractDefaultUrl": true,
-                                "removeDuplicateProfiles": true,
-                                "accountSearch": false,
-                                "sessionCookie": sessionToken,
-                                "searches": query,
-                                "numberOfResultsPerSearch": 2500,
-                                "csvName": fileName
-                            }
+                        "id": credentials.salesNavSearchCompanyExtractor,
+                        "argument": {
+                            "numberOfProfiles": 30,
+                            "extractDefaultUrl": true,
+                            "removeDuplicateProfiles": true,
+                            "accountSearch": false,
+                            "sessionCookie": sessionToken,
+                            "searches": query,
+                            "numberOfResultsPerSearch": 2500,
+                            "csvName": fileName
+                        }
                     },
+
                     credentials.initOptions,
                 )
                 .then((res) => resolve(res.data.containerId))
@@ -152,6 +152,8 @@ class LinkedInScraper {
                 return {
                     error: "Can't connect to LinkedIn with this session cookie."
                 }
+            } else if (result.data.output.includes('No leads matched your search')) {
+                return false;
             } else if (result.data.resultObject) {
                 return await JSON.parse(result.data.resultObject)
             } else {

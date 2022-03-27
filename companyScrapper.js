@@ -1,4 +1,5 @@
 const credentials = require('./credentials.js')
+const constants = require('./constants.js')
 const errors = require('./errorList.js')
 const LinkedIn = require('./LinkedInScraper')
 const DBManager = require('./DBManager')
@@ -9,105 +10,120 @@ let LinkedInScraper = new LinkedIn();
 let Database = new DBManager();
 let Scheduler = new SchedulerClass();
 
-async function buildSearchUrl(companySalesNavId, workSphere, salesNavSearchSession, ntbToken = '') {
+async function buildSearchUrl(companySalesNavId, salesNavSearchSession, ntbToken = '') {
+    return "https://www.linkedin.com/sales/search/people?logHistory=true&query=(filters%3AList((type%3ACURRENT_COMPANY%2Cvalues%3AList" +
+    "((id%3A" + companySalesNavId + "%2CselectionType%3AINCLUDED)))))" +
+    "&sessionId=" + salesNavSearchSession;
+}
+
+async function buildSearchUrlWithIndustries(companySalesNavId, workSphere, salesNavSearchSession, industryId, ntbToken = '') {
+    "https://www.linkedin.com/sales/search/people?logHistory=true&query=(recentSearchParam%3A(id%3A1337649913%2CdoLogHistory%3Atrue)" +
+    "%2Cfilters%3AList((type%3ACURRENT_COMPANY%2Cvalues%3AList((id%3A3650502%2Ctext%3AFigma%2CselectionType%3AINCLUDED)))" +
+    "%2C(type%3AINDUSTRY%2Cvalues%3AList((id%3A4%2Ctext%3AComputer%2520Software%2CselectionType%3AINCLUDED)))))&sessionId=FeLxjv3GTIaQuRAA5GhP3w%3D%3D"
+    let industry = await Database.getIndustryById(industryId);
     return 'https://www.linkedin.com/sales/search/people/list/employees-for-account/'
         + companySalesNavId
         //+ '?_ntb=' + ntbToken
         + '?doFetchHeroCard=false&logHistory=true&searchSessionId=' + salesNavSearchSession
-        + '&titleIncluded=' + workSphere
+        + '&industryIncluded=' + industry.linkedin_id +
+        +'&titleIncluded=' + workSphere
         + '&titleTimeScope=CURRENT';
+}
+
+///////////////////////////
+
+async function processNewQuery(account, company) {
+    let query = {};
+    if (company.employees < 2500) {
+        query = {
+            industry_id: 0,
+            company_id: company.id,
+            link: '',
+            account_id: account.id,
+            is_scraped: 0
+        };
+        try {
+            query.link = await buildSearchUrl(company.company_sales_nav_id, account.sales_nav_search_session_id);
+            await Database.createCompanyQuery(company.company_name, query.link, company.company_name, account.id, company.id, query.industry_id);
+            return query;
+        } catch (e) {
+            console.log("Failed to save data to database, please check data and MYSQL connection :")
+            console.log(e);
+            process.exit(1);
+        }
+    } else {
+        /// Finish industry adding feature
+        let lastQuery = await Database.getLastSalesNavCompanyParserQuery();
+        if (lastQuery === false) {
+            query = {
+                industry_id: 1,
+                company_id: company.id,
+                link: '',
+                account_id: account.id,
+                is_scraped: 0
+            };
+        } else {
+            let newQuery = {
+                industry_id: 1,
+                company_id: company.id,
+                link: '',
+                account_id: account.id,
+                is_scraped: 0
+            }
+
+            let newIndustry = await Database.getIndustryById(lastQuery.industry_id + 1);
+            if (newIndustry === false) {
+                newQuery.industry_id = 1;
+                query = newQuery;
+            } else {
+                newQuery.industry_id = newIndustry.id;
+                query = newQuery;
+            }
+        }
+        try {
+            query.link = await buildSearchUrlWithIndustries(query.function_id, query.industry_id, query.geography_id, account.sales_nav_search_session_id);
+            await Database.createNewSalesNavQuery(query);
+            return query;
+        } catch (e) {
+            console.log("Failed to save data to database, please check data and MYSQL connection :")
+            console.log(e);
+            process.exit(1);
+        }
+    }
 }
 
 async function startSearch() {
 //module.exports.startSearch = async function (accountId) {
-    let results = false;
-    let report = {
-        script: 'companyParser',
-        success: 0,
-        error: '',
-        account_id: 0,
-        queue_id: 0,
-        in_progress: 1
-    };
-    reportId = await Scheduler.makeReport(report);
-    console.time("companyParser");
     let accountsArray = await Database.getAccountsWithSalesNav();
-    if (accountsArray === false) {
-        await Scheduler.formReport(report, errors.noActiveAccountsWithSalesNav)
-        process.exit();
-    }
     for (let account of accountsArray) {
-        report.account_id = account.id;
-        // do {
-        let companyQuery = await Database.getNotParsedCompanyQuery();
-        if (companyQuery === false) {
-            let accountsArray = await Database.getAccountsWithSalesNav();
+        let results = false;
+        do {
+            let companyQuery = await Database.getNotParsedCompanyQueryByAccountId(account.id);
             let company = await Database.getNotParsedCompany();
-            let workSpheres = await Database.getWorkSpheres();
-            if (company === false) {
-                report.error = errors.allCompaniesParsed
-            } else if (workSpheres === false) {
-                report.error = errors.noWorkSpheresFound
-            } else if (accountsArray === false) {
-                report.error = errors.noActiveAccounts
+            if (companyQuery === false) {
+                companyQuery = await processNewQuery(account, company);
             }
-            if (report.error !== '') {
-                await Scheduler.formReport(report, report.error)
+            console.log(companyQuery);
+            let containerId = await LinkedInScraper.startSalesNavCompanyEmployeesParser(companyQuery.link, company.company_name + "_test2", account.session_token);
+            results = await LinkedInScraper.getResults(containerId, credentials.salesNavSearchCompanyExtractor);
+            if (results.error) {
+                console.log(results.error);
                 continue;
-            } else {
-                // TO SEPARATE FUNCTION ?
-                let accountIndex = 0;
-                let link = '';
-                let resultFile = '';
-
-                for (let workSphere of workSpheres) {
-                    resultFile = company.company_name + '_' + workSphere.name;
-                    //resultFile = company.company_name; // UNCOMMENT FOR 'REMOVE DUPLICATES' OPTION
-
-                    link = await buildSearchUrl(company.company_sales_nav_id, workSphere.name, accountsArray[accountIndex].sales_nav_search_session_id /**, accountsArray[accountIndex].ntb_token**/)
-                    await Database.createCompanyQuery(company.company_name, workSphere.name, link, resultFile, accountsArray[accountIndex].id, company.id, workSphere.id);
-
-                    if (accountIndex + 1 === accountsArray.length) {
-                        accountIndex -= accountsArray.length - 1;
-                    } else {
-                        accountIndex++;
+            }
+            console.log(results);
+            if (results !== false) {
+                for (let employee of results) {
+                    if (!employee.error) {
+                        await Database.createEmployee(employee, companyQuery.company_id, companyQuery.industry_id);
                     }
                 }
+            } else {
+                results = false;
+                await Database.updateCompanyQuery(companyQuery.id);
             }
-            companyQuery = await Database.getNotParsedCompanyQuery();
-        }
-        console.log(companyQuery);
-        let containerId = await LinkedInScraper.startSalesNavCompanyEmployeesParser(companyQuery.link, companyQuery.result_file, await Database.getAccountSessionByID(companyQuery.account_id));
-        results = await LinkedInScraper.getResults(containerId, credentials.salesNavSearchExtractor);
-        if (results.error) {
-            await Scheduler.formReport(report, results.error)
-            continue;
-        }
-        console.log(results);
-        if (results !== false) {
-            for (let employee of results) {
-                if (!employee.error) {
-                    await Database.createEmployee(employee, companyQuery.company_id, companyQuery.work_sphere_id);
-                }
-            }
-        } else {
-            await Database.updateCompanyQuery(companyQuery.id);
-        }
-        if (report.error) {
-            await Scheduler.formReport(report, results.error);
-        } else {
-            await Scheduler.formReport(report);
-        }
-        // } while (results === false)
+        } while (results === false)
     }
-
-    console.log('Finished!');
-    //await Database.closeDatabaseConnection();
-    console.timeEnd("companyParser");
-    // return new Promise((resolve, reject) => {
-    //     resolve(true);
-    // });
-    process.exit();
+    await Database.closeDatabaseConnection();
 }
 
 startSearch();
