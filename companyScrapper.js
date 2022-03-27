@@ -104,7 +104,7 @@ async function startSearch() {
                 companyQuery = await processNewQuery(account, company);
             }
             console.log(companyQuery);
-            let containerId = await LinkedInScraper.startSalesNavCompanyEmployeesParser(companyQuery.link, company.company_name + "_test2", account.session_token);
+            let containerId = await LinkedInScraper.startSalesNavCompanyEmployeesParser(companyQuery.link, company.company_name + "_prod", account.session_token);
             results = await LinkedInScraper.getResults(containerId, credentials.salesNavSearchCompanyExtractor);
             if (results.error) {
                 console.log(results.error);
