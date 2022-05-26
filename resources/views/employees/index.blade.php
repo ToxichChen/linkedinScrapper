@@ -11,6 +11,8 @@
             <th>Company</th>
             <th>Title</th>
             <th>Location</th>
+            <th>Is Active employee</th>
+            <th>Past employee duration</th>
         </tr>
         </thead>
         <tbody>
@@ -22,6 +24,8 @@
                 <td>{{$employee->company_name}}</td>
                 <td>{{$employee->title}}</td>
                 <td>{{$employee->location}}</td>
+                <td>@if ($employee->is_active_employee == 1) active @else past @endif</td>
+                <td>{{$employee->past_experience_date}}</td>
             </tr>
         @endforeach
         </tbody>
