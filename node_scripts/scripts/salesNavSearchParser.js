@@ -1,9 +1,9 @@
-const credentials = require('./credentials.js')
-const constants = require('./constants.js')
-const DBManager = require('./DBManager')
-const errors = require('./errorList.js')
-const LinkedIn = require('./LinkedInScraper')
-const SchedulerClass = require('./Scheduler');
+const credentials = require('../credentials.js')
+const constants = require('../constants/constants.js')
+const DBManager = require('../classes/DBManager')
+const errors = require('../constants/errorList.js')
+const LinkedIn = require('../classes/LinkedInScraper')
+const SchedulerClass = require('../classes/Scheduler');
 
 const salesNavSearchExportId = credentials.salesNavSearchExtractor;
 let LinkedInScraper = new LinkedIn();

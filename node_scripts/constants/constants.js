@@ -1,4 +1,46 @@
-module.exports.functionsData = {
+module.exports.buildSearchUrl = async function (companySalesNavId, salesNavSearchSession,) {
+    return "https://www.linkedin.com/sales/search/people?logHistory=true&query=(filters%3AList((type%3ACURRENT_COMPANY%2Cvalues%3AList" +
+        "((id%3A" + companySalesNavId + "%2CselectionType%3AINCLUDED)))))" +
+        "&sessionId=" + salesNavSearchSession;
+}
+
+module.exports.buildSearchUrlWithIndustries = async function (companySalesNavId, workSphere, salesNavSearchSession, industryId, ntbToken = '') {
+    "https://www.linkedin.com/sales/search/people?logHistory=true&query=(recentSearchParam%3A(id%3A1337649913%2CdoLogHistory%3Atrue)" +
+    "%2Cfilters%3AList((type%3ACURRENT_COMPANY%2Cvalues%3AList((id%3A3650502%2Ctext%3AFigma%2CselectionType%3AINCLUDED)))" +
+    "%2C(type%3AINDUSTRY%2Cvalues%3AList((id%3A4%2Ctext%3AComputer%2520Software%2CselectionType%3AINCLUDED)))))&sessionId=FeLxjv3GTIaQuRAA5GhP3w%3D%3D"
+    let industry = await Database.getIndustryById(industryId);
+    return 'https://www.linkedin.com/sales/search/people/list/employees-for-account/'
+        + companySalesNavId
+        //+ '?_ntb=' + ntbToken
+        + '?doFetchHeroCard=false&logHistory=true&searchSessionId=' + salesNavSearchSession
+        + '&industryIncluded=' + industry.linkedin_id +
+        +'&titleIncluded=' + workSphere
+        + '&titleTimeScope=CURRENT';
+}
+
+module.exports.buildSearchUrlForPastEmployees = async function (companySalesNavId, salesNavSearchSession,) {
+    return "https://www.linkedin.com/sales/search/people?" +
+        "query=(recentSearchParam%3A(id%3A1554571074%2CdoLogHistory%3Atrue)%2Cfilters%3AList" +
+        "((type%3APAST_COMPANY%2Cvalues%3AList((id%3A" + companySalesNavId + "%2Ctext%3AFigma%2CselectionType%3AINCLUDED)))" +
+        "%2C(type%3ACURRENT_COMPANY%2Cvalues%3AList((id%3A" + companySalesNavId +"%2Ctext%3AFigma%2CselectionType%3AEXCLUDED)))))" +
+        "&sessionId=WOkg7uW%2BS8itoI2k9b0mNA%3D%3D&viewAllFilters=true";
+}
+
+module.exports.buildSearchUrlWithIndustriesForPastEmployees = async function (companySalesNavId, workSphere, salesNavSearchSession, industryId, ntbToken = '') {
+    "https://www.linkedin.com/sales/search/people?logHistory=true&query=(recentSearchParam%3A(id%3A1337649913%2CdoLogHistory%3Atrue)" +
+    "%2Cfilters%3AList((type%3ACURRENT_COMPANY%2Cvalues%3AList((id%3A3650502%2Ctext%3AFigma%2CselectionType%3AINCLUDED)))" +
+    "%2C(type%3AINDUSTRY%2Cvalues%3AList((id%3A4%2Ctext%3AComputer%2520Software%2CselectionType%3AINCLUDED)))))&sessionId=FeLxjv3GTIaQuRAA5GhP3w%3D%3D"
+    let industry = await Database.getIndustryById(industryId);
+    return 'https://www.linkedin.com/sales/search/people/list/employees-for-account/'
+        + companySalesNavId
+        //+ '?_ntb=' + ntbToken
+        + '?doFetchHeroCard=false&logHistory=true&searchSessionId=' + salesNavSearchSession
+        + '&industryIncluded=' + industry.linkedin_id +
+        +'&titleIncluded=' + workSphere
+        + '&titleTimeScope=CURRENT';
+}
+
+    module.exports.functionsData = {
     "elements": [{"displayValue": "Accounting", "id": "1"}, {
         "displayValue": "Administrative",
         "id": "2"

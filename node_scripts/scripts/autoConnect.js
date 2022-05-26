@@ -1,9 +1,9 @@
-const google = require('./google.js');
-const credentials = require('./credentials.js')
-const LinkedIn = require('./LinkedInScraper')
-const DBManager = require('./DBManager')
-const SchedulerClass = require('./Scheduler');
-const errors = require('./errorList.js')
+const google = require('../google.js');
+const credentials = require('../credentials.js')
+const LinkedIn = require('../classes/LinkedInScraper')
+const DBManager = require('../classes/DBManager')
+const SchedulerClass = require('../classes/Scheduler');
+const errors = require('../constants/errorList.js')
 const fs = require('fs');
 
 /**

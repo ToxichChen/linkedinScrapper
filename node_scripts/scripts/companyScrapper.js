@@ -1,34 +1,14 @@
-const credentials = require('./credentials.js')
-const constants = require('./constants.js')
-const errors = require('./errorList.js')
-const LinkedIn = require('./LinkedInScraper')
-const DBManager = require('./DBManager')
-const SchedulerClass = require('./Scheduler');
+const credentials = require('../credentials.js')
+const constants = require('../constants/constants.js')
+const errors = require('../constants/errorList.js')
+const LinkedIn = require('../classes/LinkedInScraper')
+const DBManager = require('../classes/DBManager')
+const SchedulerClass = require('../classes/Scheduler');
 
 
 let LinkedInScraper = new LinkedIn();
 let Database = new DBManager();
 let Scheduler = new SchedulerClass();
-
-async function buildSearchUrl(companySalesNavId, salesNavSearchSession, ntbToken = '') {
-    return "https://www.linkedin.com/sales/search/people?logHistory=true&query=(filters%3AList((type%3ACURRENT_COMPANY%2Cvalues%3AList" +
-    "((id%3A" + companySalesNavId + "%2CselectionType%3AINCLUDED)))))" +
-    "&sessionId=" + salesNavSearchSession;
-}
-
-async function buildSearchUrlWithIndustries(companySalesNavId, workSphere, salesNavSearchSession, industryId, ntbToken = '') {
-    "https://www.linkedin.com/sales/search/people?logHistory=true&query=(recentSearchParam%3A(id%3A1337649913%2CdoLogHistory%3Atrue)" +
-    "%2Cfilters%3AList((type%3ACURRENT_COMPANY%2Cvalues%3AList((id%3A3650502%2Ctext%3AFigma%2CselectionType%3AINCLUDED)))" +
-    "%2C(type%3AINDUSTRY%2Cvalues%3AList((id%3A4%2Ctext%3AComputer%2520Software%2CselectionType%3AINCLUDED)))))&sessionId=FeLxjv3GTIaQuRAA5GhP3w%3D%3D"
-    let industry = await Database.getIndustryById(industryId);
-    return 'https://www.linkedin.com/sales/search/people/list/employees-for-account/'
-        + companySalesNavId
-        //+ '?_ntb=' + ntbToken
-        + '?doFetchHeroCard=false&logHistory=true&searchSessionId=' + salesNavSearchSession
-        + '&industryIncluded=' + industry.linkedin_id +
-        +'&titleIncluded=' + workSphere
-        + '&titleTimeScope=CURRENT';
-}
 
 ///////////////////////////
 
@@ -43,7 +23,7 @@ async function processNewQuery(account, company) {
             is_scraped: 0
         };
         try {
-            query.link = await buildSearchUrl(company.company_sales_nav_id, account.sales_nav_search_session_id);
+            query.link = await constants.buildSearchUrlForPastEmployees(company.company_sales_nav_id, account.sales_nav_search_session_id);
             await Database.createCompanyQuery(company.company_name, query.link, company.company_name, account.id, company.id, query.industry_id);
             return query;
         } catch (e) {
@@ -104,15 +84,18 @@ async function startSearch() {
                 companyQuery = await processNewQuery(account, company);
             }
             console.log(companyQuery);
-            let containerId = await LinkedInScraper.startSalesNavCompanyEmployeesParser(companyQuery.link, company.company_name + "_prod", account.session_token);
+            let containerId = await LinkedInScraper.startSalesNavCompanyEmployeesParser(companyQuery.link, company.company_name + "_test_past1", account.session_token);
             results = await LinkedInScraper.getResults(containerId, credentials.salesNavSearchCompanyExtractor);
             if (results.error) {
                 console.log(results.error);
                 continue;
+            } else if (results == "finished") {
+                // Set company as parsed
             }
             console.log(results);
             if (results !== false) {
                 for (let employee of results) {
+                    // Maybe add counter for parsing limits ??
                     if (!employee.error) {
                         await Database.createEmployee(employee, companyQuery.company_id, companyQuery.industry_id);
                     }

@@ -1,8 +1,8 @@
-const credentials = require('./credentials.js')
-const errors = require('./errorList.js')
-const LinkedIn = require('./LinkedInScraper')
-const DBManager = require('./DBManager')
-const SchedulerClass = require('./Scheduler');
+const credentials = require('../credentials.js')
+const errors = require('../errorList.js')
+const LinkedIn = require('../classes/LinkedInScraper')
+const DBManager = require('../classes/DBManager')
+const SchedulerClass = require('../classes/Scheduler');
 
 
 let LinkedInScraper = new LinkedIn();

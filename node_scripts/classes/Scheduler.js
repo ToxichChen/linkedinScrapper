@@ -1,7 +1,7 @@
 const DBManager = require('./DBManager')
 const https = require('https');
-const errorsList = require('./errorList.js');
-const credentials = require('./credentials.js')
+const errorsList = require('../constants/errorList.js');
+const credentials = require('../credentials.js')
 
 class Scheduler {
     constructor() {

@@ -1,8 +1,8 @@
-const DBManager = require('./DBManager')
+const DBManager = require('../classes/DBManager')
 const searchScript = require('./searchScript.js')
 const autoLikerScript = require('./autoLikerCommenter.js')
 const autoConnectScript = require('./autoConnect.js')
-const SchedulerClass = require('./Scheduler.js');
+const SchedulerClass = require('../classes/Scheduler.js');
 
 async function startScrapper() {
     let accountsArray = await Database.getAccounts();

@@ -1,4 +1,4 @@
-const DBManager = require('./DBManager');
+const DBManager = require('../classes/DBManager');
 const readline = require('readline');
 
 const rl = readline.createInterface({

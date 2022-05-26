@@ -1,4 +1,4 @@
-const credentials = require('./credentials.js')
+const credentials = require('../credentials.js')
 const axios = require("axios")
 const fetch = require('node-fetch');
 const DBManager = require('./DBManager')
@@ -152,6 +152,8 @@ class LinkedInScraper {
                 return {
                     error: "Can't connect to LinkedIn with this session cookie."
                 }
+            } else if (result.data.output.includes("This search has already been processed")) {
+                return "finished";
             } else if (result.data.output.includes('No leads matched your search')) {
                 return false;
             } else if (result.data.resultObject) {

@@ -1,4 +1,4 @@
-const credentials = require('./credentials.js')
+const credentials = require('../credentials.js')
 const mysql = require('mysql');
 const fs = require('fs')
 
@@ -638,8 +638,24 @@ class DBManager {
     }
 
     async createEmployee(result, companyId, industryId) {
-        let sql = (`INSERT INTO employees (name, last_name, full_name, linkedin_url, company_id, title, industry_id, location, duration, past_role, past_company, past_company_url, sales_nav_url)
-                    VALUES ("${result.firstName}", "${result.lastName}", "${result.fullName}", "${result.defaultProfileUrl}", ${companyId}, "${result.title}", ${industryId}, "${result.location}", "${result.duration}","${result.pastRole}","${result.pastCompany}","${result.pastCompanyUrl}","${result.profileUrl}" ) `);
+        let sql = (`INSERT INTO employees (name, last_name, full_name, linkedin_url, company_id, title, industry_id, location, duration, past_role, past_company, past_company_url, sales_nav_url, is_active_employee, past_experience_date)
+                    VALUES ("
+                                ${result.firstName}",
+                                "${result.lastName}",
+                                "${result.fullName}",
+                                "${result.defaultProfileUrl}",
+                                ${companyId},
+                                "${result.title}",
+                                ${industryId},
+                                "${result.location}",
+                                "${result.duration}",
+                                "${result.pastRole}",
+                                "${result.pastCompany}",
+                                "${result.pastCompanyUrl}",
+                                "${result.profileUrl}",
+                                0,
+                                "${result.pastExperienceDuration}"
+                    ) `);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
@@ -834,6 +850,24 @@ class DBManager {
                     throw err;
                 }
                 resolve(result);
+            });
+        });
+    }
+
+    async getCreatedQuery() {
+        let sql = (`SELECT *
+                FROM created_queries
+                WHERE is_parsed != 1 LIMIT 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
             });
         });
     }

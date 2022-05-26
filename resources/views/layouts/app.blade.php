@@ -21,7 +21,8 @@
     <!-- Custom CSS -->
     <link href="/css/style.min.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -48,11 +49,11 @@
                 <!-- ============================================================== -->
                 <!-- Logo -->
                 <!-- ============================================================== -->
-{{--                <h1>BeenAcquired </h1>--}}
+                {{--                <h1>BeenAcquired </h1>--}}
                 <a class="navbar-brand" href="dashboard.html">
                     <span class="logo-text">
                             <!-- dark Logo text -->
-                            <img src="plugins/images/logo.png" alt="homepage" />
+                            <img src="/plugins/images/logo.png" alt="homepage"/>
                         </span>
                 </a>
                 <!-- ============================================================== -->
@@ -134,6 +135,13 @@
                            aria-expanded="false">
                             <i class="far fa-clock" aria-hidden="true"></i>
                             <span class="hide-menu">Companies</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item pt-2">
+                        <a class="sidebar-link waves-effect waves-dark sidebar-link" href="/created_queries"
+                           aria-expanded="false">
+                            <i class="far fa-clock" aria-hidden="true"></i>
+                            <span class="hide-menu">Created Queries</span>
                         </a>
                     </li>
                 </ul>

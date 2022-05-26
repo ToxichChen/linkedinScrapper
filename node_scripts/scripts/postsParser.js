@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
-const DBManager = require('./DBManager')
-const SchedulerClass = require('./Scheduler');
-const errors = require('./errorList.js')
+const DBManager = require('../classes/DBManager')
+const SchedulerClass = require('../classes/Scheduler');
+const errors = require('../constants/errorList.js')
 
 async function comparePost(accountId, savedPosts, link) {
     for (const post of savedPosts) {
