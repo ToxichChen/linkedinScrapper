@@ -622,9 +622,9 @@ class DBManager {
         });
     }
 
-    async createCompanyQuery(companyName, link, resultFile, accountId, companyId, industryId) {
-        let sql = (`INSERT INTO company_queries (company, link, result_file, account_id, company_id, industry_id)
-                    VALUES ("${companyName}", "${link}", "${resultFile}" , ${accountId}, ${companyId}, ${industryId} ) `);
+    async createCompanyQuery(companyName, link, resultFile, accountId, createdQueryId, industryId) {
+        let sql = (`INSERT INTO company_queries (company, link, result_file, account_id, created_query_id, industry_id)
+                    VALUES ("${companyName}", "${link}", "${resultFile}" , ${accountId}, ${createdQueryId}, ${industryId} ) `);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
@@ -854,10 +854,12 @@ class DBManager {
         });
     }
 
-    async getCreatedQuery() {
-        let sql = (`SELECT *
-                FROM created_queries
-                WHERE is_parsed != 1 LIMIT 1`);
+    async getNotParsedCreatedQuery() {
+        let sql = (`SELECT created_queries.*, companies.employees, companies.company_name, company_sales_nav_id
+                    FROM created_queries
+                    JOIN companies on created_queries.company_id = companies.id
+                    WHERE created_queries.is_parsed != 1 LIMIT 1
+                    `);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
@@ -872,6 +874,21 @@ class DBManager {
         });
     }
 
+    async updateCreatedQuery(queryId) {
+        let sql = (`UPDATE created_queries SET is_parsed = 1 WHERE id = ${queryId}`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
 }
 
 module.exports = DBManager;

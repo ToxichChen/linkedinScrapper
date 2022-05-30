@@ -12,20 +12,26 @@ let Scheduler = new SchedulerClass();
 
 ///////////////////////////
 
-async function processNewQuery(account, company) {
+async function processNewQuery(account, createdQuery) {
     let query = {};
-    if (company.employees < 2500) {
+    if (createdQuery.employees < 2500) {
         query = {
             industry_id: 0,
-            company_id: company.id,
+            created_query_id: createdQuery.id,
             link: '',
             account_id: account.id,
             is_scraped: 0
         };
         try {
-            query.link = await constants.buildSearchUrlForPastEmployees(company.company_sales_nav_id, account.sales_nav_search_session_id);
-            await Database.createCompanyQuery(company.company_name, query.link, company.company_name, account.id, company.id, query.industry_id);
-            return query;
+            if (createdQuery.type === 'past') {
+                query.link = await constants.buildSearchUrlForPastEmployees(createdQuery.company_sales_nav_id, account.sales_nav_search_session_id);
+                await Database.createCompanyQuery(createdQuery.company_name, query.link, createdQuery.company_name, account.id, createdQuery.id, query.industry_id);
+                return query;
+            } else {
+                query.link = await constants.buildSearchUrl(createdQuery.company_sales_nav_id, account.sales_nav_search_session_id);
+                await Database.createCompanyQuery(createdQuery.company_name, query.link, createdQuery.company_name, account.id, createdQuery.id, query.industry_id);
+                return query;
+            }
         } catch (e) {
             console.log("Failed to save data to database, please check data and MYSQL connection :")
             console.log(e);
@@ -73,18 +79,17 @@ async function processNewQuery(account, company) {
 }
 
 async function startSearch() {
-//module.exports.startSearch = async function (accountId) {
     let accountsArray = await Database.getAccountsWithSalesNav();
     for (let account of accountsArray) {
         let results = false;
         do {
             let companyQuery = await Database.getNotParsedCompanyQueryByAccountId(account.id);
-            let company = await Database.getNotParsedCompany();
+            let createdQuery = await Database.getNotParsedCreatedQuery();
             if (companyQuery === false) {
-                companyQuery = await processNewQuery(account, company);
+                companyQuery = await processNewQuery(account, createdQuery);
             }
             console.log(companyQuery);
-            let containerId = await LinkedInScraper.startSalesNavCompanyEmployeesParser(companyQuery.link, company.company_name + "_test_past1", account.session_token);
+            let containerId = await LinkedInScraper.startSalesNavCompanyEmployeesParser(companyQuery.link, createdQuery.company_name + "_prod", account.session_token);
             results = await LinkedInScraper.getResults(containerId, credentials.salesNavSearchCompanyExtractor);
             if (results.error) {
                 console.log(results.error);
@@ -97,7 +102,7 @@ async function startSearch() {
                 for (let employee of results) {
                     // Maybe add counter for parsing limits ??
                     if (!employee.error) {
-                        await Database.createEmployee(employee, companyQuery.company_id, companyQuery.industry_id);
+                        await Database.createEmployee(employee, createdQuery.company_id, companyQuery.industry_id);
                     }
                 }
             } else {
