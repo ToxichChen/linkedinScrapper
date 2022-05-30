@@ -889,6 +889,22 @@ class DBManager {
             });
         });
     }
+
+    async checkEmployeeIfExists(linkedinUrl) {
+        let sql = (`SELECT * FROM employees WHERE linkedin_url = "${linkedinUrl}"`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
 }
 
 module.exports = DBManager;

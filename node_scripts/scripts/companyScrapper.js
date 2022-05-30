@@ -103,7 +103,9 @@ async function startSearch() {
                 for (let employee of results) {
                     // Maybe add counter for parsing limits ??
                     if (!employee.error) {
-                        await Database.createEmployee(employee, createdQuery.company_id, companyQuery.industry_id);
+                        if (await Database.checkEmployeeIfExists(employee.defaultProfileUrl) == false) {
+                            await Database.createEmployee(employee, createdQuery.company_id, companyQuery.industry_id);
+                        }
                     }
                 }
             } else {
