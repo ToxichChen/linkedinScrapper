@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('company_query', function (Blueprint $table) {
+        Schema::table('company_queryies', function (Blueprint $table) {
             $table->integer('created_query_id')->nullable();
         });
     }
@@ -25,7 +25,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('company_query', function (Blueprint $table) {
+        Schema::table('company_queries', function (Blueprint $table) {
             $table->dropColumn('created_query_id');
         });
     }
