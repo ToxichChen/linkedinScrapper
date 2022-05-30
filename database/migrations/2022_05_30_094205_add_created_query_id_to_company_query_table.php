@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('employees', function (Blueprint $table) {
-            $table->integer('is_active_employee')->default(0);
-            $table->string('past_experience_date')->nullable();
+        Schema::table('company_query', function (Blueprint $table) {
+            $table->integer('created_query_id')->nullable();
         });
     }
 
@@ -26,9 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('employees', function (Blueprint $table) {
-            $table->dropColumn('is_active_employee');
-            $table->dropColumn('past_experience_date');
+        Schema::table('company_query', function (Blueprint $table) {
+            $table->dropColumn('created_query_id');
         });
     }
 };

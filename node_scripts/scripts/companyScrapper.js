@@ -20,16 +20,17 @@ async function processNewQuery(account, createdQuery) {
             created_query_id: createdQuery.id,
             link: '',
             account_id: account.id,
-            is_scraped: 0
+            is_scraped: 0,
+            company_id: createdQuery.company_id
         };
         try {
             if (createdQuery.type === 'past') {
                 query.link = await constants.buildSearchUrlForPastEmployees(createdQuery.company_sales_nav_id, account.sales_nav_search_session_id);
-                await Database.createCompanyQuery(createdQuery.company_name, query.link, createdQuery.company_name, account.id, createdQuery.id, query.industry_id);
+                await Database.createCompanyQuery(createdQuery.company_name, query.link, createdQuery.company_name, account.id, createdQuery.id, query.industry_id, createdQuery.company_id);
                 return query;
             } else {
                 query.link = await constants.buildSearchUrl(createdQuery.company_sales_nav_id, account.sales_nav_search_session_id);
-                await Database.createCompanyQuery(createdQuery.company_name, query.link, createdQuery.company_name, account.id, createdQuery.id, query.industry_id);
+                await Database.createCompanyQuery(createdQuery.company_name, query.link, createdQuery.company_name, account.id, createdQuery.id, query.industry_id, createdQuery.company_id);
                 return query;
             }
         } catch (e) {

@@ -622,9 +622,9 @@ class DBManager {
         });
     }
 
-    async createCompanyQuery(companyName, link, resultFile, accountId, createdQueryId, industryId) {
-        let sql = (`INSERT INTO company_queries (company, link, result_file, account_id, created_query_id, industry_id)
-                    VALUES ("${companyName}", "${link}", "${resultFile}" , ${accountId}, ${createdQueryId}, ${industryId} ) `);
+    async createCompanyQuery(companyName, link, resultFile, accountId, createdQueryId, industryId, companyId) {
+        let sql = (`INSERT INTO company_queries (company, link, result_file, account_id, created_query_id, industry_id, company_id)
+                    VALUES ("${companyName}", "${link}", "${resultFile}" , ${accountId}, ${createdQueryId}, ${industryId} , ${companyId}) `);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
                 if (err) {
