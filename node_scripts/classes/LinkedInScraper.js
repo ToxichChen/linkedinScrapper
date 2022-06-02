@@ -3,6 +3,7 @@ const axios = require("axios")
 const fetch = require('node-fetch');
 const DBManager = require('./DBManager')
 const fs = require('fs');
+const utf8 = require("utf8");
 
 class LinkedInScraper {
     constructor() {
@@ -157,7 +158,8 @@ class LinkedInScraper {
             } else if (result.data.output.includes('No leads matched your search')) {
                 return false;
             } else if (result.data.resultObject) {
-                return await JSON.parse(result.data.resultObject)
+                let results = utf8.encode(result.data.resultObject);
+                return await JSON.parse(results)
             } else {
                 return false;
             }
@@ -327,6 +329,30 @@ class LinkedInScraper {
                                 "dwellTime": true,
                                 "spreadsheetUrl": documentUrl
                             }
+                    },
+                    credentials.initOptions,
+                )
+                .then((res) => resolve(res.data.containerId))
+                .catch((error) => console.error("Something went wrong :(", error))
+        });
+    }
+
+    async runProfileScrapper(link, sessionCookie) {
+        return await new Promise((resolve) => {
+            axios
+                .post(
+                    "https://api.phantombuster.com/api/v2/agents/launch",
+                    {
+                        "id": credentials.profileScrapperId,
+                        "argument": {
+                            "numberOfAddsPerLaunch": 1,
+                            "saveImg": false,
+                            "takeScreenshot": false,
+                            "takePartialScreenshot": false,
+                            "sessionCookie": sessionCookie,
+                            "spreadsheetUrl": link,
+                            "emailChooser": "phantombuster"
+                        }
                     },
                     credentials.initOptions,
                 )
