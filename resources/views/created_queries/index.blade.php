@@ -11,6 +11,7 @@
             <th>Is Parsed</th>
             <th>Created</th>
             <th>Updated</th>
+            <th>&nbsp</th>
         </tr>
         </thead>
         <tbody>
@@ -22,6 +23,10 @@
                 <td>{{$createdQuery->is_parsed}}</td>
                 <td>{{$createdQuery->created_at}}</td>
                 <td>{{$createdQuery->updated_at}}</td>
+                <td>
+                    <a role="button" href="/created_queries/edit/{{$createdQuery->id}}" class="btn btn-primary">Edit</a>
+                    <button type="button" id="delete" onclick="confirmDelete({{$createdQuery->id}})" class="btn btn-danger">Delete</button>
+                </td>
             </tr>
         @endforeach
         </tbody>
@@ -31,5 +36,11 @@
         $(document).ready(function () {
             $('#table_id').DataTable();
         });
+        function confirmDelete(id) {
+            let deleteConfirm = confirm("Are you sure you want to delete?");
+            if (deleteConfirm) {
+                window.location.href = '/created_queries/delete/' + id
+            }
+        };
     </script>
 @endsection

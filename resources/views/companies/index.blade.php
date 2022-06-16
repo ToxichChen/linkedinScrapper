@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @section('content')
 
+    <a class="btn btn-primary mb-5" href="/companies/create_form" > Create New </a>
 
     <table id="table_id" class="display">
         <thead>
@@ -8,7 +9,6 @@
             <th>Company Name</th>
             <th>Company URL</th>
             <th>Company Sales Nav Id</th>
-            <th>Parsed</th>
             <th>Employees</th>
         </tr>
         </thead>
@@ -18,7 +18,6 @@
                 <td>{{$company->company_name}}</td>
                 <td>{{$company->company_url}}</td>
                 <td>{{$company->company_sales_nav_id}}</td>
-                <td>{{$company->is_parsed}}</td>
                 <td>{{$company->employees}}</td>
             </tr>
         @endforeach

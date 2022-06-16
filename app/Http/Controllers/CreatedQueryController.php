@@ -38,4 +38,39 @@ class CreatedQueryController extends Controller
 
         return redirect('/created_queries');
     }
+
+    public function edit($id)
+    {
+        $createdQuery = CreatedQuery::find($id);
+        $companies = Company::all();
+        return View::make('created_queries.edit')
+            ->with(['createdQuery' => $createdQuery, 'companies' => $companies]);
+    }
+
+    public function update(Request $request, $id)
+    {
+
+        $validated = $request->validate([
+            'company' => 'required|numeric|exists:companies,id',
+            'type' => 'required|in:init,update,past',
+        ]);
+
+        $createdQuery = CreatedQuery::find($id);
+        $createdQuery->company_id = $validated['company'];
+        $createdQuery->type_of_parsing = $validated['type'];
+        if ($request->is_parsed) {
+            $createdQuery->is_parsed = $validated['is_parsed'] == 'on' ? 1 : 0;
+        } else {
+            $createdQuery->is_parsed = 0;
+        }
+        $createdQuery->save();
+        return redirect('/created_queries');
+    }
+
+    public function delete($id)
+    {
+        $createdQuery = CreatedQuery::where('id',$id)->delete();
+
+        return redirect('/created_queries');
+    }
 }

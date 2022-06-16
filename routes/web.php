@@ -22,12 +22,18 @@ use App\Http\Controllers\CreatedQueryController;
 
 Route::get('/', [EmployeeController::class, 'index'])->name('index');
 Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
-Route::get('/companies', [CompanyController::class, 'index'])->name('companies.index');
 Route::prefix('/created_queries')->group(function () {
     Route::get('/', [CreatedQueryController::class, 'index'])->name('created_queries.index');
     Route::get('/create_form', [CreatedQueryController::class, 'createForm'])->name('created_queries.create_form');
     Route::post('/create', [CreatedQueryController::class, 'create'])->name('created_queries.create');
+    Route::get('/edit/{id}', [CreatedQueryController::class, 'edit'])->name('created_queries.edit');
+    Route::post('/update/{id}', [CreatedQueryController::class, 'update'])->name('created_queries.update');
+    Route::get('/delete/{id}', [CreatedQueryController::class, 'delete'])->name('created_queries.delete');
 });
 
-
+Route::prefix('/companies')->group(function () {
+    Route::get('/', [CompanyController::class, 'index'])->name('companies.index');
+    Route::get('/create_form', [CompanyController::class, 'createForm'])->name('companies.create_form');
+    Route::post('/create', [CompanyController::class, 'create'])->name('companies.create');
+});
 
