@@ -7,7 +7,7 @@
             <input class="form-control" type="text" id="company_name" name="company_name" placeholder="Enter company name">
         </div>
         <div class="form-group">
-            <label for="company_url">Enter company url</label>
+            <label for="company_url">Enter LinkedIn company url</label>
             <input class="form-control" type="text" id="company_url" name="company_url" placeholder="Enter company url">
         </div>
         <div class="form-group">

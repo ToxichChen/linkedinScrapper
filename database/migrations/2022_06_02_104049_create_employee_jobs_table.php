@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('company');
             $table->string('company_url');
             $table->string('job_title')->default('');
-            $table->text('job_description')->default('');
+            $table->text('job_description');
             $table->string('job_location')->default('');
             $table->string('job_date_range')->default('');
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));

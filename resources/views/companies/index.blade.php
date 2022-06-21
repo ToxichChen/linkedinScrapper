@@ -7,7 +7,7 @@
         <thead>
         <tr>
             <th>Company Name</th>
-            <th>Company URL</th>
+            <th>LinkedIn Company URL</th>
             <th>Company Sales Nav Id</th>
             <th>Employees</th>
         </tr>

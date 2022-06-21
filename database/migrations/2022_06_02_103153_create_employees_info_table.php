@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('employee_id');
             $table->string('profile')->default('');
             $table->string('email')->default('');
-            $table->text('description')->default('');
+            $table->text('description');
             $table->string('headline')->default('');
             $table->string('location')->default('');
             $table->string('img_url')->default('');
