@@ -144,6 +144,13 @@
                             <span class="hide-menu">Created Queries</span>
                         </a>
                     </li>
+                    <li class="sidebar-item pt-2">
+                        <a class="sidebar-link waves-effect waves-dark sidebar-link" href="/crypto_companies"
+                           aria-expanded="false">
+                            <i class="far fa-clock" aria-hidden="true"></i>
+                            <span class="hide-menu">Crypto Companies</span>
+                        </a>
+                    </li>
                 </ul>
 
             </nav>

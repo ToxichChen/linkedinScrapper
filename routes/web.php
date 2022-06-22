@@ -5,6 +5,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CreatedQueryController;
+use App\Http\Controllers\CryptoCompanyController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,3 +38,6 @@ Route::prefix('/companies')->group(function () {
     Route::post('/create', [CompanyController::class, 'create'])->name('companies.create');
 });
 
+Route::prefix('/crypto_companies')->group(function () {
+    Route::get('/', [CryptoCompanyController::class, 'index'])->name('crypto_companies.index');
+});

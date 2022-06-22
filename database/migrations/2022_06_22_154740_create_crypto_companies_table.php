@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('amount');
             $table->string('investors');
             $table->string('website');
+            $table->string('founder');
             $table->string('category');
             $table->string('subcategories');
             $table->string('description');
