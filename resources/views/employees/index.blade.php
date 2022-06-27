@@ -13,6 +13,7 @@
                 <th>Location</th>
                 <th>Is Active employee</th>
                 <th>Past employee duration</th>
+                <th>&nbsp</th>
             </tr>
             </thead>
             <tbody>
@@ -26,6 +27,12 @@
                     <td>{{$employee->location}}</td>
                     <td>@if ($employee->is_active_employee == 1) active @else past @endif</td>
                     <td>{{$employee->past_experience_date}}</td>
+                    <td>
+                        @if ($employee->is_parsed === 1)
+                            <a role="button" href="/employee/show/{{$employee->id}}"
+                               class="btn btn-primary">Show</a>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
             </tbody>

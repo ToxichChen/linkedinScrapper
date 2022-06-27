@@ -24,7 +24,10 @@ use App\Http\Controllers\UserController;
 //});
 Route::group(['middleware' => 'check.logged'], function () {
     Route::get('/', [EmployeeController::class, 'index'])->name('index');
+    Route::get('/employee/show/{id}', [EmployeeController::class, 'show'])->name('employee.show');
+
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
+
     Route::prefix('/created_queries')->group(function () {
         Route::get('/', [CreatedQueryController::class, 'index'])->name('created_queries.index');
         Route::get('/create_form', [CreatedQueryController::class, 'createForm'])->name('created_queries.create_form');
