@@ -24,6 +24,7 @@ use App\Http\Controllers\UserController;
 //});
 Route::group(['middleware' => 'check.logged'], function () {
     Route::get('/', [EmployeeController::class, 'index'])->name('index');
+    Route::post('/', [EmployeeController::class, 'index'])->name('index_post');
     Route::get('/employee/show/{id}', [EmployeeController::class, 'show'])->name('employee.show');
 
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');

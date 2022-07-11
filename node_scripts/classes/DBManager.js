@@ -741,11 +741,11 @@ class DBManager {
                             ${companyId},
                             "${result.title}",
                             ${industryId},
-                            "${result.location}",
-                            "${result.duration}",
-                            "${result.pastRole}",
-                            "${result.pastCompany}",
-                            "${result.pastCompanyUrl}",
+                            "${result.location || ''}",
+                            "${result.duration || ''}",
+                            "${result.pastRole || ''}",
+                            "${result.pastCompany || ''}",
+                            "${result.pastCompanyUrl || ''}",
                             "${result.profileUrl}",
                             0,
                             "${result.pastExperienceDuration}") `);
@@ -941,8 +941,8 @@ class DBManager {
                                                 current_company_url, current_company_id)
                     VALUES ("${result.firstName}", "${result.lastName}", "${result.fullName}",
                             "${result.defaultProfileUrl}", ${industryId}, "${result.title}", ${functionId},
-                            "${result.location}", "${result.duration}", "${result.pastRole}", "${result.pastCompany}",
-                            "${result.pastCompanyUrl}", "${result.profileUrl}", "${result.companyName}",
+                            "${result.location || ''}", "${result.duration || ''}", "${result.pastRole || ''}", "${result.pastCompany || ''}",
+                            "${result.pastCompanyUrl || ''}", "${result.profileUrl}", "${result.companyName}",
                             "${result.companyUrl}", "${result.companyId}") `);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
@@ -1082,10 +1082,10 @@ class DBManager {
                     VALUES (${employeeId},
                             "${result.profileUrl}",
                             "${email}",
-                            "${result.description}",
-                            "${result.headline}",
-                            "${result.location}",
-                            "${result.imgUrl}",
+                            "${result.description || ''}",
+                            "${result.headline || ''}",
+                            "${result.location || ''}",
+                            "${result.imgUrl || ''}",
                             "${result.firstName}",
                             "${result.lastName}",
                             "${result.fullName}",
@@ -1116,10 +1116,10 @@ class DBManager {
                     VALUES (${employeeId},
                             "${result.companyName}",
                             "${result.companyUrl}",
-                            "${result.jobTitle}",
-                            "${result.description}",
-                            "${result.location}",
-                            "${result.dateRange}")
+                            "${result.jobTitle || ''}",
+                            '${result.description || ''}',
+                            "${result.location || ''}",
+                            "${result.dateRange || ''}")
         `);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {

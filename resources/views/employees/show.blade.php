@@ -424,7 +424,7 @@
                         <ul class="profile-info-list">
                             <li class="title">PERSONAL INFORMATION</li>
                             <li>
-                                <div class="field">Occupation:</div>
+                                <div class="field">Headline:</div>
                                 <div class="value">{{$employee->headline}}</div>
                             </li>
                             <li>
