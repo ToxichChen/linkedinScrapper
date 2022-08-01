@@ -853,6 +853,25 @@ class DBManager {
         });
     }
 
+    async getCompanyTypeById(id) {
+        let sql = (`SELECT *
+                    FROM company_types
+                    WHERE id = ${id}
+                    LIMIT 1`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                if (result.length >= 1) {
+                    resolve(result[0])
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
     async getFunctionById(id) {
         let sql = (`SELECT *
                     FROM functions
@@ -917,6 +936,21 @@ class DBManager {
         });
     }
 
+    async createCompanyType(title, linkedInId) {
+        let sql = (`INSERT INTO company_types (title, linkedin_id)
+                    VALUES ('${title}', '${linkedInId}') `);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                } else {
+                    console.log("Successfully saved!")
+                }
+                resolve(result.insertId);
+            });
+        });
+    }
+
     async createNewSalesNavQuery(query) {
         let sql = (`INSERT INTO sales_nav_search_queries (geography_id, function_id, industry_id, search_url,
                                                           account_id, is_scraped)
@@ -934,7 +968,7 @@ class DBManager {
         });
     }
 
-    async createCryptoWorker(result, industryId, functionId) {
+    async createCryptoWorker(result, industryId = 0, functionId = 0) {
         let sql = (`INSERT INTO crypto_workers (name, last_name, full_name, linkedin_url, industry_id, title,
                                                 function_id, location, duration, past_role, past_company,
                                                 past_company_url, sales_nav_url, current_company_name,

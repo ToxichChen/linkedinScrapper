@@ -1,7 +1,17 @@
-module.exports.buildSearchUrl = async function (companySalesNavId, salesNavSearchSession,) {
+module.exports.buildSearchUrl = async function (companySalesNavId, salesNavSearchSession) {
     return "https://www.linkedin.com/sales/search/people?logHistory=true&query=(filters%3AList((type%3ACURRENT_COMPANY%2Cvalues%3AList" +
         "((id%3A" + companySalesNavId + "%2CselectionType%3AINCLUDED)))))" +
         "&sessionId=" + salesNavSearchSession;
+}
+
+module.exports.buildSearchUrlWithIndustriesFunctionAndCompanyType = async function (geographyId, industryId, functionId, companyType, salesNavSearchSession) {
+    return 'https://www.linkedin.com/sales/search/people?query=(spellCorrectionEnabled%3Atrue%2CrecentSearchParam' +
+        '%3A(id%3A1892757020%2CdoLogHistory%3Atrue)%2Cfilters%' +
+        '3AList((type%3AREGION%2Cvalues%3AList((id%3A' + geographyId + '%2Ctext%3AEurope%2CselectionType%3AINCLUDED)))' +
+        '%2C(type%3AINDUSTRY%2Cvalues%3AList((id%3A' + industryId + '%2Ctext%3AFinancial%2520Services%2CselectionType%3AINCLUDED)))' +
+        '%2C(type%3AFUNCTION%2Cvalues%3AList((id%3A' + functionId + '%2Ctext%3AFinance%2CselectionType%3AINCLUDED)))\n' +
+        '%2C(type%3ACOMPANY_TYPE%2Cvalues%3AList((id%3A' + companyType + '%2Ctext%3APublic%2520Company%2CselectionType%3AINCLUDED))))' +
+        '%2Ckeywords%3Acryptocurrency)&sessionId=' + salesNavSearchSession + '&viewAllFilters=true'
 }
 
 module.exports.buildSearchUrlWithIndustries = async function (companySalesNavId, workSphere, salesNavSearchSession, industryId, ntbToken = '') {
@@ -22,7 +32,7 @@ module.exports.buildSearchUrlForPastEmployees = async function (companySalesNavI
     return "https://www.linkedin.com/sales/search/people?" +
         "query=(recentSearchParam%3A(id%3A1554571074%2CdoLogHistory%3Atrue)%2Cfilters%3AList" +
         "((type%3APAST_COMPANY%2Cvalues%3AList((id%3A" + companySalesNavId + "%2Ctext%3AFigma%2CselectionType%3AINCLUDED)))" +
-        "%2C(type%3ACURRENT_COMPANY%2Cvalues%3AList((id%3A" + companySalesNavId +"%2Ctext%3AFigma%2CselectionType%3AEXCLUDED)))))" +
+        "%2C(type%3ACURRENT_COMPANY%2Cvalues%3AList((id%3A" + companySalesNavId + "%2Ctext%3AFigma%2CselectionType%3AEXCLUDED)))))" +
         "&sessionId=WOkg7uW%2BS8itoI2k9b0mNA%3D%3D&viewAllFilters=true";
 }
 
@@ -40,7 +50,7 @@ module.exports.buildSearchUrlWithIndustriesForPastEmployees = async function (co
         + '&titleTimeScope=CURRENT';
 }
 
-    module.exports.functionsData = {
+module.exports.functionsData = {
     "elements": [{"displayValue": "Accounting", "id": "1"}, {
         "displayValue": "Administrative",
         "id": "2"
@@ -853,39 +863,11 @@ module.exports.geographyData = {
                 "text": "Nordics"
             }
         }, {
-            "displayValue": "MENA",
-            "id": "91000008",
-            "headlineV2": {
-                "attributes": [{"length": 0, "start": 0, "type": {"com.linkedin.pemberly.text.Bold": {}}}],
-                "text": "MENA"
-            }
-        }, {
-            "displayValue": "EMEA",
-            "id": "91000007",
-            "headlineV2": {
-                "attributes": [{"length": 0, "start": 0, "type": {"com.linkedin.pemberly.text.Bold": {}}}],
-                "text": "EMEA"
-            }
-        }, {
             "displayValue": "Europe",
             "id": "100506914",
             "headlineV2": {
                 "attributes": [{"length": 0, "start": 0, "type": {"com.linkedin.pemberly.text.Bold": {}}}],
                 "text": "Europe"
-            }
-        }, {
-            "displayValue": "DACH",
-            "id": "91000006",
-            "headlineV2": {
-                "attributes": [{"length": 0, "start": 0, "type": {"com.linkedin.pemberly.text.Bold": {}}}],
-                "text": "DACH"
-            }
-        }, {
-            "displayValue": "Benelux",
-            "id": "91000005",
-            "headlineV2": {
-                "attributes": [{"length": 0, "start": 0, "type": {"com.linkedin.pemberly.text.Bold": {}}}],
-                "text": "Benelux"
             }
         }, {
             "displayValue": "North America",
@@ -895,13 +877,6 @@ module.exports.geographyData = {
                 "text": "North America"
             }
         }, {
-            "displayValue": "APJ",
-            "id": "91000004",
-            "headlineV2": {
-                "attributes": [{"length": 0, "start": 0, "type": {"com.linkedin.pemberly.text.Bold": {}}}],
-                "text": "APJ"
-            }
-        }, {
             "displayValue": "South America",
             "id": "104514572",
             "headlineV2": {
@@ -909,11 +884,11 @@ module.exports.geographyData = {
                 "text": "South America"
             }
         }, {
-            "displayValue": "APAC",
-            "id": "91000003",
+            "displayValue": "Australia",
+            "id": "104514572",
             "headlineV2": {
                 "attributes": [{"length": 0, "start": 0, "type": {"com.linkedin.pemberly.text.Bold": {}}}],
-                "text": "APAC"
+                "text": "Australia"
             }
         }, {
             "displayValue": "Africa",
@@ -923,4 +898,20 @@ module.exports.geographyData = {
                 "text": "Africa"
             }
         }]
+}
+
+module.exports.companyTypes = {
+    "elements": [{
+        "displayValue": "Public Company",
+        "id": "C"
+    }, {"displayValue": "Privately Held", "id": "P"}, {
+        "displayValue": "Non Profit",
+        "id": "N"
+    }, {"displayValue": "Educational Institution", "id": "D"}, {
+        "displayValue": "Partnership",
+        "id": "S"
+    }, {"displayValue": "Self Employed", "id": "E"}, {
+        "displayValue": "Self Owned",
+        "id": "O"
+    }, {"displayValue": "Government Agency", "id": "G"}], "paging": {"count": 100, "start": 0, "links": []}
 }

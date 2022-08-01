@@ -59,7 +59,7 @@ class CreatedQueryController extends Controller
         $createdQuery->company_id = $validated['company'];
         $createdQuery->type_of_parsing = $validated['type'];
         if ($request->is_parsed) {
-            $createdQuery->is_parsed = $validated['is_parsed'] == 'on' ? 1 : 0;
+            $createdQuery->is_parsed = $request->is_parsed == 'on' ? 1 : 0;
         } else {
             $createdQuery->is_parsed = 0;
         }
