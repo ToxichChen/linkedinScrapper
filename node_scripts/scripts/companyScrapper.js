@@ -101,9 +101,12 @@ async function startSearch() {
             console.log(results);
             if (results !== false) {
                 for (let employee of results) {
+                    console.log('FOREACH EMPLOYEES ENTERED');
                     // Maybe add counter for parsing limits ??
                     if (!employee.error) {
+                        console.log('NO Employee ERROR')
                         if (await Database.checkEmployeeIfExists(employee.defaultProfileUrl) == false) {
+                            console.log("EMPLOYE DOESN'T EXISTS, SAVING")
                             try {
                                 await Database.createEmployee(employee, createdQuery.company_id, companyQuery.industry_id);
                             } catch (e) {
@@ -113,6 +116,7 @@ async function startSearch() {
                     }
                 }
             } else {
+                console.log('RESULTS ARE FALSE')
                 results = false;
                 await Database.updateCompanyQuery(companyQuery.id);
             }
