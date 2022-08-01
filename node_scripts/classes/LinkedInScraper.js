@@ -65,7 +65,7 @@ class LinkedInScraper {
                     {
                         "id": credentials.salesNavSearchCompanyExtractor,
                         "argument": {
-                            "numberOfProfiles": 30,
+                            "numberOfProfiles": 50,
                             "extractDefaultUrl": true,
                             "removeDuplicateProfiles": true,
                             "accountSearch": false,
