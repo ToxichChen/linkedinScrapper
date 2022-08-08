@@ -158,7 +158,7 @@ class LinkedInScraper {
             } else if (result.data.output.includes('No leads matched your search')) {
                 return false;
             } else if (result.data.resultObject) {
-                let results = await utf8.encode(result.data.resultObject);
+                let results = await utf8.encode(result.data.resultObject.replaceAll("'", " "));
                 return await JSON.parse(results)
             } else {
                 return false;
