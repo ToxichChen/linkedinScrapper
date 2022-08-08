@@ -1064,7 +1064,7 @@ class DBManager {
     async getNotParsedEmployee() {
         let sql = (`SELECT *
                     FROM employees
-                    WHERE is_parsed = 0
+                    WHERE is_parsed = 0 AND company_id = 6
                     LIMIT 1`);
         return await new Promise((resolve) => {
             this.connection.query(sql, function (err, result) {
