@@ -46,9 +46,10 @@ async function parseProfile() {
                 }
             }
             await Database.updateParsedEmployee(employee.id);
-            await Database.closeDatabaseConnection();
         }
     }
+    await Database.closeDatabaseConnection();
+
 }
 
 parseProfile();
