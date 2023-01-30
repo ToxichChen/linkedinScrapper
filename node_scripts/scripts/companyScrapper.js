@@ -96,7 +96,7 @@ async function startSearch() {
                 console.log(results.error);
                 continue;
             } else if (results == "finished") {
-                // Set company as parsed
+                results = false;
             }
             console.log(results);
             if (results !== false) {

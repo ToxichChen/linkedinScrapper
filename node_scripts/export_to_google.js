@@ -15,12 +15,13 @@ const db = mysql.createConnection({
 db.connect();
 
 // (C) EXPORT TO EXCEL
-db.query("SELECT * FROM linkedin.`employees` WHERE company_id = 6", (error, results) => {
+db.query("SELECT * FROM `employees` WHERE company_id = 5", (error, results) => {
     // (C1) EXTRACT DATA FROM DATABASE
     if (error) throw error;
     var data = [];
     results.forEach((row) => {
-        data.push([row["id"], row["full_name"], row["linkedin_url"], row['title'], row['location'], row['duration'], row['past_role'], row['past_company'], row['sales_nav_url']]);
+        console.log(row['name']);
+        data.push([row["id"], row["full_name"], row["linkedin_url"], row['title'], row['company_name'], row['location'], row['duration'], row['past_role'], row['past_company'], row['sales_nav_url']]);
     });
 
     // (C2) WRITE TO EXCEL FILE

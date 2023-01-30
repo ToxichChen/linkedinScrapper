@@ -731,7 +731,7 @@ class DBManager {
     }
 
     async createEmployee(result, companyId, industryId) {
-        let sql = (`INSERT INTO employees (name, last_name, full_name, linkedin_url, company_id, title, industry_id,
+        let sql = (`INSERT INTO employees (name, last_name, full_name, linkedin_url, company_id, company_name, title, industry_id,
                                            location, duration, past_role, past_company, past_company_url, sales_nav_url,
                                            is_active_employee, past_experience_date)
                     VALUES ("${result.firstName}",
@@ -739,13 +739,14 @@ class DBManager {
                             "${result.fullName}",
                             "${result.defaultProfileUrl}",
                             ${companyId},
+                            "${result.companyName}",
                             "${result.title}",
                             ${industryId},
                             "${result.location || ''}",
-                            "${result.duration || ''}",
-                            "${result.pastRole || ''}",
-                            "${result.pastCompany || ''}",
-                            "${result.pastCompanyUrl || ''}",
+                            "${result.durationInCompany || ''}",
+                            "${result.pastExperienceCompanyTitle || ''}",
+                            "${result.pastExperienceCompanyName || ''}",
+                            "${result.pastExperienceCompanyUrl || ''}",
                             "${result.profileUrl}",
                             0,
                             "${result.pastExperienceDuration}") `);
@@ -1207,6 +1208,20 @@ class DBManager {
                     console.log("Employee skill saved!")
                     resolve(result.insertId);
                 }
+            });
+        });
+    }
+
+    async updateSetCompanyParsed(companyId) {
+        let sql = (`UPDATE companies
+                    SET is_parsed = 1
+                    WHERE id = "${companyId}"`);
+        return await new Promise((resolve) => {
+            this.connection.query(sql, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                resolve(result);
             });
         });
     }
